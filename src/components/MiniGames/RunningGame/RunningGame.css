@@ -1,0 +1,200 @@
+.running-game {
+  width: 800px;
+  height: 400px;
+  border: 2px solid #333;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.game-area {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: linear-gradient(to bottom, #87CEEB, #87CEEB 70%, transparent 70%);
+}
+
+.game-area::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: #90EE90;
+  z-index: -1;
+}
+
+.score {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 24px;
+  color: #fff;
+  text-shadow: 2px 2px #000;
+  z-index: 1;
+}
+
+.player {
+  width: 40px;
+  height: 40px;
+  background: url('./assets/mario.png') no-repeat;
+  background-size: contain;
+  position: absolute;
+  bottom: 45px; /* 약간 위로 조정 */
+  transform-origin: bottom center;
+  z-index: 2;
+  will-change: transform;
+}
+
+.player.jumping {
+  animation: jump-squash 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes jump-squash {
+  0% {
+    transform: translateY(0) scaleY(1);
+  }
+  40% {
+    transform: translateY(-60px) scaleY(1.1) scaleX(0.9);
+  }
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+.obstacle {
+  width: 30px;
+  height: 30px;
+  background: url('./assets/goomba.png') no-repeat;
+  background-size: contain;
+  position: absolute;
+  bottom: 45px; /* 마리오와 동일한 높이로 조정 */
+  z-index: 1;
+  will-change: transform;
+}
+
+.coin {
+  width: 25px;
+  height: 25px;
+  background: url('./assets/coin.png') no-repeat;
+  background-size: contain;
+  position: absolute;
+  bottom: 100px; /* 캐릭터보다 위에 배치 */
+  animation: float 1.5s infinite ease-in-out;
+  z-index: 1;
+  will-change: transform;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotateY(0);
+  }
+  50% {
+    transform: translateY(-60px) rotateY(180deg);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+.game-over {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  color: white;
+  min-width: 300px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -40%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+.game-over h2 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #FFD700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.score-text {
+  font-size: 20px;
+  margin: 10px 0;
+  color: #fff;
+}
+
+.hint-box {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  margin: 20px 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.success-text {
+  color: #4CAF50;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.hint-text {
+  color: #FFD700;
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.guide-text {
+  color: #FF9800;
+  font-size: 16px;
+  margin: 15px 0;
+}
+
+.game-over button {
+  margin-top: 15px;
+  padding: 12px 25px;
+  font-size: 16px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.continue-btn {
+  background: #4CAF50;
+  color: white;
+}
+
+.continue-btn:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.retry-btn {
+  background: #e52521;
+  color: white;
+}
+
+.retry-btn:hover {
+  background: #ff3e3a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

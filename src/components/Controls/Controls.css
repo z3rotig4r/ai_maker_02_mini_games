@@ -1,0 +1,33 @@
+.controls {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.control-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.control-btn.start {
+  background-color: #e52521;
+  color: white;
+}
+
+.control-btn.start:hover {
+  background-color: #ff3e3a;
+}
+
+.control-btn.reset {
+  background-color: #666;
+  color: white;
+}
+
+.control-btn.reset:hover {
+  background-color: #888;
+}
