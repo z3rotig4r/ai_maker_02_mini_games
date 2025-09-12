@@ -114,11 +114,13 @@ const MemoryGame: React.FC<MemoryGameProps> = ({ difficulty, onComplete }) => {
     const maxPairs = 8;
     const cardCount = Math.min(maxPairs * 2, Math.max(minPairs * 2, 8 + (difficulty - 1) * 4));
     
-    setIsShuffling(true);
-    setCards([]);
+    setIsShuffling(true); // 셔플 애니메이션 시작
+    setCards([]); // 카드를 일시적으로 비움
     setFlippedCards([]);
     setMatchedPairs(0);
     setMoves(0);
+    setIsGameStarted(false);
+    setIsGameCompleted(false);
   }, [difficulty, shuffleCards]);
 
   useEffect(() => {
@@ -244,6 +246,9 @@ const handleCardClick = useCallback((cardId: number) => {
         {isGameCompleted && (
           <div className="game-complete">
             <div>게임 완료!</div>
+            <button className="restart-button" onClick={initializeGame}>
+              다시 시작
+            </button>
           </div>
         )}
       </div>
