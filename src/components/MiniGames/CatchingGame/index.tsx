@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './CatchingGame.css';
+import yoshiFace from './assets/yoshi_face.jpg';
 
 interface CatchingGameProps {
   difficulty: number;
@@ -19,9 +20,16 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
   const [score, setScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
+  const [lives, setLives] = useState(3);
+  const [lastCollisionTime, setLastCollisionTime] = useState(0);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (!gameStarted || isGameOver) return;
+
+    // 화살표 키의 기본 스크롤 동작 방지
+    if (e.key.startsWith('Arrow')) {
+      e.preventDefault();
+    }
 
     const moveDistance = 20;
     if (e.key === 'ArrowLeft') {
@@ -40,6 +48,7 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
     setYoshiPosition(400);
     setItems([]);
     setScore(0);
+    setLives(3);
     setIsGameOver(false);
     setGameStarted(true);
   };
@@ -57,6 +66,8 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
       setItems(prev => [...prev, newItem]);
     }, 1000 / difficulty);
 
+    const COLLISION_COOLDOWN = 500; // Collision cooldown time in milliseconds
+
     const gameLoop = setInterval(() => {
       setItems(prev => {
         const newItems = prev.map(item => ({
@@ -64,16 +75,29 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
           y: item.y + (3 * difficulty)
         }));
 
-        // 요시와 아이템 충돌 체크
+        // Check collision between Yoshi and items
+        const currentTime = Date.now();
         const collectedItems = newItems.filter(item => {
           const isColliding = 
             item.y >= 500 &&
             item.y <= 540 &&
-            Math.abs(item.x - yoshiPosition) < 40;
+            Math.abs(item.x - yoshiPosition) < 35;
           
           if (isColliding) {
             if (item.type === 'bomb') {
-              setIsGameOver(true);
+              // Check if cooldown time has passed
+              if (currentTime - lastCollisionTime >= COLLISION_COOLDOWN) {
+                setLastCollisionTime(currentTime);
+                // Reduce life only once per collision
+                setLives(prev => {
+                  if (prev <= 0) return prev;
+                  const newLives = prev - 1;
+                  if (newLives <= 0) {
+                    setIsGameOver(true);
+                  }
+                  return newLives;
+                });
+              }
             } else {
               setScore(s => s + 10);
             }
@@ -110,7 +134,17 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
       ) : (
         <>
           <div className="game-info">
-            <span>점수: {score}</span>
+            <div className="score">점수: {score}</div>
+            <div className="lives">
+              {[...Array(3)].map((_, index) => (
+                <img
+                  key={index}
+                  src={yoshiFace}
+                  alt="life"
+                  className={`life-icon ${index >= lives ? 'lost' : ''}`}
+                />
+              ))}
+            </div>
           </div>
           <div className="game-area">
             {items.map(item => (

@@ -73,7 +73,12 @@ const RunningGame: React.FC<RunningGameProps> = ({ difficulty, onComplete }) => 
         setCoins(prev => {
           const newCoins = prev.filter(x => !(x >= 30 && x <= 70));
           if (prev.length !== newCoins.length) {
-            setScore(s => s + 1);
+            const newScore = score + 1;
+            setScore(newScore);
+            // 30개 코인 획득 시 자동으로 게임 종료
+            if (newScore >= 30) {
+              setGameOver(true);
+            }
           }
           return newCoins;
         });
@@ -116,9 +121,9 @@ const RunningGame: React.FC<RunningGameProps> = ({ difficulty, onComplete }) => 
       </div>
       {gameOver && (
         <div className="game-over">
-          <h2>{score >= 10 ? '미션 성공! 🎉' : '게임 오버! 😢'}</h2>
+          <h2>{score >= 30 ? '미션 성공! 🎉' : '게임 오버! 😢'}</h2>
           <p className="score-text">획득한 코인: {score}</p>
-          {score >= 10 ? (
+          {score >= 30 ? (
             <>
               <div className="hint-box">
                 <p className="success-text">축하합니다! 힌트를 획득했어요!</p>
@@ -130,7 +135,7 @@ const RunningGame: React.FC<RunningGameProps> = ({ difficulty, onComplete }) => 
             </>
           ) : (
             <>
-              <p className="guide-text">10개 이상의 코인을 모아보세요!</p>
+              <p className="guide-text">30개의 코인을 모아보세요!</p>
               <button className="retry-btn" onClick={() => window.location.reload()}>
                 다시 시작
               </button>
