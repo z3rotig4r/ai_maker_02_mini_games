@@ -1,5 +1,4 @@
-// filepath: /react-game/react-game/src/components/Game/index.tsx
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import useGame from '../../hooks/useGame';
 import RunningGame from '../MiniGames/RunningGame';
 import MemoryGame from '../MiniGames/MemoryGame';
@@ -17,21 +16,32 @@ const Game: React.FC = () => {
     craftWeapon
   } = useGame();
 
-  const renderMiniGame = () => {
+  // 현재 게임 참조를 메모이제이션
+  const currentGame = React.useMemo(() => {
     if (!gameState.currentMiniGame) return null;
+    return gameState.miniGames.find(g => g.id === gameState.currentMiniGame);
+  }, [gameState.currentMiniGame, gameState.miniGames]);
 
-    const game = gameState.miniGames.find(g => g.id === gameState.currentMiniGame);
-    if (!game) return null;
+  const renderMiniGame = () => {
+    console.log('currentMiniGame:', gameState.currentMiniGame);
+    console.log('currentGame:', currentGame);
+    
+    if (!currentGame) {
+      console.log('No current game');
+      return null;
+    }
+    
+    console.log('Rendering game:', currentGame.type);
 
-    switch (game.type) {
+    switch (currentGame.type) {
       case 'running':
-        return <RunningGame difficulty={game.difficulty} onComplete={(hint) => completeMiniGame(game.id, hint)} />;
+        return <RunningGame difficulty={currentGame.difficulty} onComplete={(hint) => completeMiniGame(currentGame.id, hint)} />;
       case 'memory':
-        return <MemoryGame difficulty={game.difficulty} onComplete={(hint) => completeMiniGame(game.id, hint)} />;
+        return <MemoryGame difficulty={currentGame.difficulty} onComplete={(hint) => completeMiniGame(currentGame.id, hint)} />;
       case 'rhythm':
-        return <RhythmGame difficulty={game.difficulty} onComplete={(hint) => completeMiniGame(game.id, hint)} />;
+        return <RhythmGame difficulty={currentGame.difficulty} onComplete={(hint) => completeMiniGame(currentGame.id, hint)} />;
       case 'catching':
-        return <CatchingGame difficulty={game.difficulty} onComplete={(hint) => completeMiniGame(game.id, hint)} />;
+        return <CatchingGame difficulty={currentGame.difficulty} onComplete={(hint) => completeMiniGame(currentGame.id, hint)} />;
       default:
         return null;
     }
@@ -45,7 +55,7 @@ const Game: React.FC = () => {
           <div 
             key={game.id}
             className={`mini-game-card ${game.completed ? 'completed' : ''}`}
-            onClick={() => !game.completed && startMiniGame(game.id)}
+            onClick={() => startMiniGame(game.id)}
           >
             <h3>{game.name}</h3>
             <p>난이도: {'⭐'.repeat(game.difficulty)}</p>
@@ -65,23 +75,27 @@ const Game: React.FC = () => {
     </div>
   );
 
+  const content = gameState.currentMiniGame ? renderMiniGame() : (
+    gameState.currentPhase === 'A' ? renderPhaseA() : renderPhaseB()
+  );
+
+  console.log('Rendering content:', gameState.currentMiniGame ? 'mini game' : 'phase');
+
   return (
     <div className="game">
-      {gameState.currentMiniGame ? (
-        renderMiniGame()
-      ) : (
-        gameState.currentPhase === 'A' ? renderPhaseA() : renderPhaseB()
-      )}
+      {content}
       <div className="phase-switch">
         <button 
           className={`phase-button ${gameState.currentPhase === 'A' ? 'active' : ''}`}
           onClick={() => switchPhase('A')}
+          disabled={!!gameState.currentMiniGame}
         >
           미니게임
         </button>
         <button 
           className={`phase-button ${gameState.currentPhase === 'B' ? 'active' : ''}`}
           onClick={() => switchPhase('B')}
+          disabled={!!gameState.currentMiniGame}
         >
           작업실
         </button>

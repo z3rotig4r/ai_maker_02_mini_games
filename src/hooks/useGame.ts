@@ -47,22 +47,22 @@ const useGame = () => {
   const [gameState, setGameState] = useState<GameState>(initialState);
 
   const startMiniGame = useCallback((gameId: string) => {
+    console.log('Starting mini game:', gameId);
+    
     setGameState(prev => {
-      const game = prev.miniGames.find(g => g.id === gameId);
-      if (!game) return prev;
-      
-      // 이미 완료된 게임이면 난이도만 증가
-      if (game.completed) {
-        const updatedMiniGames = prev.miniGames.map(g =>
-          g.id === gameId ? { ...g, difficulty: g.difficulty + 1 } : g
-        );
-        return {
-          ...prev,
-          miniGames: updatedMiniGames
-        };
+      // 이미 게임이 진행 중이면 아무것도 하지 않음
+      if (prev.currentMiniGame) {
+        console.log('Game already in progress');
+        return prev;
       }
 
-      // 새로운 게임 시작
+      const game = prev.miniGames.find(g => g.id === gameId);
+      if (!game) {
+        console.log('Game not found');
+        return prev;
+      }
+
+      console.log('Starting new game:', game.id);
       return {
         ...prev,
         currentMiniGame: gameId
@@ -72,20 +72,31 @@ const useGame = () => {
 
   const completeMiniGame = useCallback((gameId: string, hint: string) => {
     setGameState(prev => {
-      // 이미 완료된 게임은 처리하지 않음
       const game = prev.miniGames.find(g => g.id === gameId);
-      if (!game || game.completed) return prev;
+      
+      // 게임이 존재하지 않거나 현재 진행 중인 게임이 아니면 무시
+      if (!game || prev.currentMiniGame !== gameId) {
+        console.log('Invalid game completion attempt');
+        return prev;
+      }
 
-      const updatedMiniGames = prev.miniGames.map(game => 
-        game.id === gameId 
-          ? { ...game, completed: true, hint }
-          : game
+      console.log('Completing game:', gameId);
+      
+      const updatedMiniGames = prev.miniGames.map(g => 
+        g.id === gameId
+          ? { 
+              ...g, 
+              completed: true, 
+              hint,
+              difficulty: g.completed ? g.difficulty + 1 : g.difficulty 
+            }
+          : g
       );
 
       return {
         ...prev,
         miniGames: updatedMiniGames,
-        hints: [...prev.hints, hint],
+        hints: game.completed ? prev.hints : [...prev.hints, hint],
         currentMiniGame: null
       };
     });
