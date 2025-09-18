@@ -326,7 +326,7 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
 
   return (
     <div className={`rhythm-game ${backgroundEffect}`}>
-      <audio ref={audioRef} src="/sound/mario!!.mp3" preload="auto" />
+      <audio ref={audioRef} src="./sound/mario_bgm.mp3" preload="auto" />
       
       {!gameStarted ? (
         <div className="start-screen">
@@ -362,7 +362,7 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
                           }}
                         >
                           <img 
-                            src={note.isHit ? "/assets/cry_kkong.png" : "/assets/kkong.png"} 
+                            src={note.isHit ? require("./assets/cry_kkong.png") : require("./assets/kkong.png")} 
                             alt="쿵쿵" 
                             style={{
                               width: '100%',
