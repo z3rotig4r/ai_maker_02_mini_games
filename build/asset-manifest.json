@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/static/css/main.62247127.css",
+    "main.js": "/static/js/main.73c1dee8.js",
+    "static/media/background.png": "/static/media/background.c121d44c30f55042dd45.png",
+    "static/media/koopa.png": "/static/media/koopa.df6ba1a18ab681e311ee.png",
+    "static/media/bukku.png": "/static/media/bukku.61949d1145460ebdc732.png",
+    "static/media/mario.png": "/static/media/mario.2fff4815a6bf2fea2035.png",
+    "static/media/yoshi.png": "/static/media/yoshi.255672d312a168f5cffa.png",
+    "static/media/luigi.png": "/static/media/luigi.6b8e3f0bd44b5c2c4772.png",
+    "static/media/bowser.png": "/static/media/bowser.74f0374aaab177791031.png",
+    "static/media/goomba.png": "/static/media/goomba.5dfda4d0e13bb0b524a6.png",
+    "static/media/bomb.png": "/static/media/bomb.bbc53ad858fea1101af2.png",
+    "static/media/peach.png": "/static/media/peach.5e930e4d318a8e636990.png",
+    "static/media/yoshi_face.jpg": "/static/media/yoshi_face.d66f7e1fa724bab5ce18.jpg",
+    "static/media/toad.png": "/static/media/toad.9fb9a800124beae15d92.png",
+    "static/media/fruit.png": "/static/media/fruit.3a65fde6995f5a664610.png",
+    "index.html": "/index.html",
+    "main.62247127.css.map": "/static/css/main.62247127.css.map",
+    "main.73c1dee8.js.map": "/static/js/main.73c1dee8.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.62247127.css",
+    "static/js/main.73c1dee8.js"
+  ]
+}
