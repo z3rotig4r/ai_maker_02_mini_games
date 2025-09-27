@@ -214,6 +214,17 @@ const useGame = () => {
     }));
   }, []);
 
+  const removeFromSlot = useCallback((slot: SlotIndex) => {
+    setGameState(prev => {
+      const next = [...prev.craftingSlots];
+      next[slot] = null;
+      return {
+        ...prev,
+        craftingSlots: next
+      };
+    });
+  }, []);
+
   const handleCraft = useCallback(() => {
     setGameState(prev => {
       const startTime = Date.now();
@@ -290,6 +301,7 @@ const useGame = () => {
     selectMaterial,
     placeOnSlot,
     clearSlots,
+    removeFromSlot,
     handleCraft,
     clearToast
   };

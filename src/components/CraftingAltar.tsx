@@ -4,11 +4,14 @@ import { OrbitControls, useGLTF, Html } from '@react-three/drei';
 import { Group } from 'three';
 import { getMaterialIcon } from '../utils/iconUtils';
 import { MATERIALS_MAP } from '../data/materials';
+import { SlotIndex } from '../types';
+import './CraftingAltar.css';
 
 interface CraftingAltarProps {
   craftingSlots: (string | null)[];
   selectedMaterial: string | null;
   onSlotClick: (slot: number) => void;
+  onSlotRemove: (slot: SlotIndex) => void;
   isShaking: boolean;
   lastRejectedSlot: number | null;
 }
@@ -17,6 +20,7 @@ interface CraftingAltarProps {
 function LuckyBoxModel({ 
   craftingSlots, 
   onSlotClick, 
+  onSlotRemove,
   isShaking, 
   lastRejectedSlot 
 }: CraftingAltarProps) {
@@ -73,7 +77,19 @@ function LuckyBoxModel({
         <group key={index} position={position}>
           {/* 투명한 클릭 영역 */}
           <mesh
-            onPointerDown={() => onSlotClick(index)}
+            onPointerDown={(e) => {
+              // 우클릭 or Shift+클릭 → 제거
+              if (e.button === 2 || e.nativeEvent?.button === 2 || e.shiftKey) {
+                e.stopPropagation();
+                onSlotRemove(index as SlotIndex);
+                return;
+              }
+              // 좌클릭 → 배치 시도
+              onSlotClick(index);
+            }}
+            onContextMenu={(e) => {
+              e.stopPropagation();
+            }}
             onPointerOver={(e) => {
               e.stopPropagation();
               document.body.style.cursor = 'pointer';
@@ -119,6 +135,27 @@ function LuckyBoxModel({
                   }}
                 />
               </div>
+            </Html>
+          )}
+
+          {/* 비우기 버튼 (아이템 있을 때만, 클릭 가능) */}
+          {craftingSlots[index] && (
+            <Html
+              transform
+              position={[0.22, 0.12, 0]} // 슬롯 우상단쯤
+              distanceFactor={10}
+              style={{ pointerEvents: 'auto' }} // ← 중요: 클릭 허용
+            >
+              <button
+                className="slot-x"
+                aria-label="슬롯 비우기"
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  onSlotRemove(index as SlotIndex); 
+                }}
+              >
+                ×
+              </button>
             </Html>
           )}
           
@@ -187,7 +224,16 @@ const CraftingAltar: React.FC<CraftingAltarProps> = (props) => {
   }, []);
 
   return (
-    <div style={{ height: '380px', width: '100%', position: 'relative' }}>
+    <div 
+      style={{ 
+        height: '380px', 
+        width: '100%', 
+        position: 'relative',
+        borderRadius: '12px', 
+        border: '2px solid #ddd' 
+      }}
+      onContextMenu={(e) => e.preventDefault()} // ← 브라우저 컨텍스트 메뉴 막기
+    >
       <Canvas
         camera={{ position: [0, 1, 3], fov: 50 }}
         style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}

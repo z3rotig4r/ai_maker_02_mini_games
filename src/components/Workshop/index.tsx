@@ -10,6 +10,7 @@ interface WorkshopProps {
   gameState: GameState;
   selectMaterial: (materialId: string) => void;
   placeOnSlot: (slot: SlotIndex) => void;
+  removeFromSlot: (slot: SlotIndex) => void;
   handleCraft: () => void;
   clearToast: () => void;
 }
@@ -18,6 +19,7 @@ const Workshop: React.FC<WorkshopProps> = ({
   gameState, 
   selectMaterial, 
   placeOnSlot, 
+  removeFromSlot,
   handleCraft, 
   clearToast 
 }) => {
@@ -111,6 +113,7 @@ const Workshop: React.FC<WorkshopProps> = ({
               craftingSlots={craftingSlots}
               selectedMaterial={selectedMaterial}
               onSlotClick={(slot) => placeOnSlot(slot as SlotIndex)}
+              onSlotRemove={removeFromSlot}
               isShaking={isShaking}
               lastRejectedSlot={lastRejectedSlot}
             />
