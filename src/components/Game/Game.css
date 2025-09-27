@@ -58,29 +58,37 @@
   transform: translateX(-50%);
   display: flex;
   gap: 10px;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.95);
   padding: 10px;
-  border-radius: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
 }
 
 .phase-button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 15px;
-  background-color: #f0f0f0;
+  padding: 12px 24px;
+  border: 2px solid transparent;
+  border-radius: 20px;
+  background-color: #f8f9fa;
   cursor: pointer;
   font-weight: bold;
-  transition: all 0.3s;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  color: #495057;
 }
 
 .phase-button:hover {
-  background-color: #e0e0e0;
+  background-color: #e9ecef;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .phase-button.active {
   background-color: #e63946;
   color: white;
+  border-color: #c1121f;
+  box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
 }
 
 h2 {

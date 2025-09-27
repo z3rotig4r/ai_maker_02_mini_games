@@ -128,7 +128,8 @@ const useGame = () => {
   const switchPhase = useCallback((phase: GamePhase) => {
     setGameState(prev => ({
       ...prev,
-      currentPhase: phase
+      currentPhase: phase,
+      currentMiniGame: null // 미니게임 중이면 종료하고 전환
     }));
   }, []);
 

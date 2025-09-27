@@ -94,14 +94,12 @@ const Game: React.FC = () => {
         <button 
           className={`phase-button ${gameState.currentPhase === 'A' ? 'active' : ''}`}
           onClick={() => switchPhase('A')}
-          disabled={!!gameState.currentMiniGame}
         >
           미니게임
         </button>
         <button 
           className={`phase-button ${gameState.currentPhase === 'B' ? 'active' : ''}`}
           onClick={() => switchPhase('B')}
-          disabled={!!gameState.currentMiniGame}
         >
           작업실
         </button>
