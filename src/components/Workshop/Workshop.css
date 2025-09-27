@@ -115,6 +115,74 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.crafting-altar {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.effect-chips {
+  margin-bottom: 20px;
+}
+
+.effect-chips h4 {
+  color: #457b9d;
+  margin-bottom: 15px;
+  font-size: 1.1em;
+}
+
+.chips-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.effect-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+.effect-chip:hover {
+  background-color: #e9ecef;
+  border-color: #e63946;
+  transform: translateY(-2px);
+}
+
+.effect-chip.selected {
+  background-color: #ffe0e0;
+  border-color: #e63946;
+  box-shadow: 0 2px 8px rgba(230, 57, 70, 0.3);
+}
+
+.chip-emoji {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.chip-name {
+  font-size: 12px;
+  color: #333;
+  font-weight: 500;
+  text-align: center;
+}
+
+.crafting-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
 .crafting-table {
   display: flex;
   flex-direction: column;

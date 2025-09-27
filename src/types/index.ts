@@ -54,3 +54,15 @@ export interface GameState {
   toastMessage: string;
   isShaking: boolean;
 }
+
+// 개발 모드용 전역 타입 선언
+declare global {
+  interface Window {
+    __workshopLog?: Array<{
+      time: string;
+      success: boolean;
+      slots: (string | null)[];
+      attemptIntervalMs: number;
+    }>;
+  }
+}

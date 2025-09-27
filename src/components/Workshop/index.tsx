@@ -3,6 +3,8 @@ import './Workshop.css';
 import { GameState, SlotIndex } from '../../types';
 import { MATERIALS_MAP } from '../../data/materials';
 import { getMaterialIcon } from '../../utils/iconUtils';
+import CraftingAltar from '../CraftingAltar';
+import HintPanel from '../HintPanel';
 
 interface WorkshopProps {
   gameState: GameState;
@@ -46,17 +48,8 @@ const Workshop: React.FC<WorkshopProps> = ({
       </div>
 
       <div className="workshop-content">
-        <div className="hints-section">
-          <h3>수집한 힌트</h3>
-          <div className="hints-list">
-            {hints.map((hint, index) => (
-              <div key={index} className="hint-item">
-                <span className="hint-number">#{index + 1}</span>
-                <p>{hint}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* 힌트 패널 */}
+        <HintPanel gameState={gameState} />
 
         <div className="inventory-section">
           <h3>보유 재료</h3>
@@ -111,25 +104,45 @@ const Workshop: React.FC<WorkshopProps> = ({
 
         <div className="crafting-section">
           <h3>무기 제작</h3>
-          <div className="crafting-table">
-            <div className="crafting-slots">
-              {Array(3).fill(null).map((_, index) => (
-                <div 
-                  key={index} 
-                  className={`crafting-slot ${lastRejectedSlot === index ? 'rejected' : ''} ${isShaking ? 'shaking' : ''}`}
-                  onClick={() => placeOnSlot(index as SlotIndex)}
+          
+          {/* 3D 럭키박스 조합대 */}
+          <div className="crafting-altar">
+            <CraftingAltar
+              craftingSlots={craftingSlots}
+              selectedMaterial={selectedMaterial}
+              onSlotClick={(slot) => placeOnSlot(slot as SlotIndex)}
+              isShaking={isShaking}
+              lastRejectedSlot={lastRejectedSlot}
+            />
+          </div>
+
+          {/* 효과 빠른 선택 칩 */}
+          <div className="effect-chips">
+            <h4>효과 빠른 선택</h4>
+            <div className="chips-container">
+              {[
+                { id: 'thunder', emoji: '⚡', name: '우르르쾅쾅' },
+                { id: 'chill', emoji: '❄️', name: '으슬으슬' },
+                { id: 'splash', emoji: '💦', name: '펑펑' }
+              ].map((effect) => (
+                <button
+                  key={effect.id}
+                  className={`effect-chip ${selectedMaterial === effect.id ? 'selected' : ''}`}
+                  onClick={() => {
+                    selectMaterial(effect.id);
+                    // 자동으로 3번 슬롯에 배치
+                    setTimeout(() => placeOnSlot(2), 100);
+                  }}
+                  title={effect.name}
                 >
-                  {craftingSlots[index] ? (
-                    <img 
-                      src={getMaterialIcon(craftingSlots[index] as keyof typeof MATERIALS_MAP)} 
-                      alt={MATERIALS_MAP[craftingSlots[index] as keyof typeof MATERIALS_MAP]?.name || ''} 
-                    />
-                  ) : (
-                    <span>+</span>
-                  )}
-                </div>
+                  <span className="chip-emoji">{effect.emoji}</span>
+                  <span className="chip-name">{effect.name}</span>
+                </button>
               ))}
             </div>
+          </div>
+
+          <div className="crafting-controls">
             <button className="craft-button" onClick={handleCraft}>
               제작하기
             </button>

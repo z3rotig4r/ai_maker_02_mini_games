@@ -185,7 +185,29 @@ const useGame = () => {
 
   const handleCraft = useCallback(() => {
     setGameState(prev => {
+      const startTime = Date.now();
       const result = matchRecipe(prev.craftingSlots[0], prev.craftingSlots[1], prev.craftingSlots[2]);
+      const success = !!result;
+      
+      // 개발 모드 계측 로깅
+      if (process.env.NODE_ENV === 'development') {
+        const logEntry = {
+          time: new Date().toISOString(),
+          success,
+          slots: [...prev.craftingSlots],
+          attemptIntervalMs: Date.now() - startTime
+        };
+        
+        console.log('[Workshop] 제작 시도:', logEntry);
+        
+        // window 객체에 로그 배열 추가
+        if (typeof window !== 'undefined') {
+          if (!window.__workshopLog) {
+            window.__workshopLog = [];
+          }
+          window.__workshopLog.push(logEntry);
+        }
+      }
       
       if (result) {
         // 성공: 결과 카드 표출 + 슬롯 초기화 (재료 미차감)

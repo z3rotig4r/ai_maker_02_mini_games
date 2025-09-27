@@ -1,0 +1,186 @@
+.hint-panel {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.hint-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.hint-panel-header h3 {
+  color: #e63946;
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.weapon-selector {
+  padding: 8px 12px;
+  border: 2px solid #e63946;
+  border-radius: 5px;
+  background-color: #fff;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.weapon-selector:focus {
+  outline: none;
+  border-color: #dc2f3c;
+  box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.2);
+}
+
+.hints-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.hint-slot {
+  position: relative;
+  background-color: #f8f9fa;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  padding: 15px;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.hint-slot.unlocked {
+  background-color: #d4edda;
+  border-color: #28a745;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+}
+
+.hint-slot.locked {
+  background-color: #f8f9fa;
+  border-color: #dee2e6;
+  opacity: 0.6;
+}
+
+.hint-number {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  background-color: #e63946;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.hint-slot.unlocked .hint-number {
+  background-color: #28a745;
+}
+
+.hint-content {
+  font-size: 14px;
+  line-height: 1.4;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.hint-slot.locked .hint-content {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.unlock-indicator {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  color: #28a745;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.completion-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.badge-icon {
+  font-size: 24px;
+}
+
+.badge-text {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(40, 167, 69, 0.8);
+  }
+}
+
+.hint-progress {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e63946, #f77f00);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 14px;
+  color: #6c757d;
+  font-weight: 500;
+  min-width: 100px;
+}
+
+@media (max-width: 768px) {
+  .hints-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .hint-panel-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+  
+  .weapon-selector {
+    width: 100%;
+  }
+}
