@@ -1,0 +1,206 @@
+/* MarioBackdrop.css */
+.mario-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* 하늘 배경 */
+.sky-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%);
+}
+
+/* 구름 애니메이션 */
+.cloud {
+  position: absolute;
+  background: var(--cloud);
+  border-radius: 50px;
+  opacity: 0.8;
+}
+
+.cloud::before,
+.cloud::after {
+  content: '';
+  position: absolute;
+  background: var(--cloud);
+  border-radius: 50px;
+}
+
+.cloud-1 {
+  width: 80px;
+  height: 40px;
+  top: 20%;
+  left: 10%;
+  animation: float 20s infinite linear;
+}
+
+.cloud-1::before {
+  width: 50px;
+  height: 50px;
+  top: -25px;
+  left: 10px;
+}
+
+.cloud-1::after {
+  width: 60px;
+  height: 40px;
+  top: -15px;
+  right: 10px;
+}
+
+.cloud-2 {
+  width: 100px;
+  height: 50px;
+  top: 15%;
+  right: 20%;
+  animation: float 25s infinite linear reverse;
+}
+
+.cloud-2::before {
+  width: 60px;
+  height: 60px;
+  top: -30px;
+  left: 15px;
+}
+
+.cloud-2::after {
+  width: 70px;
+  height: 50px;
+  top: -20px;
+  right: 15px;
+}
+
+.cloud-3 {
+  width: 60px;
+  height: 30px;
+  top: 30%;
+  left: 60%;
+  animation: float 18s infinite linear;
+}
+
+.cloud-3::before {
+  width: 40px;
+  height: 40px;
+  top: -20px;
+  left: 5px;
+}
+
+.cloud-3::after {
+  width: 45px;
+  height: 30px;
+  top: -10px;
+  right: 5px;
+}
+
+.cloud-4 {
+  width: 90px;
+  height: 45px;
+  top: 25%;
+  left: 30%;
+  animation: float 22s infinite linear reverse;
+}
+
+.cloud-4::before {
+  width: 55px;
+  height: 55px;
+  top: -28px;
+  left: 12px;
+}
+
+.cloud-4::after {
+  width: 65px;
+  height: 45px;
+  top: -18px;
+  right: 12px;
+}
+
+/* 언덕 */
+.hill {
+  position: absolute;
+  bottom: 0;
+  background: var(--hill);
+  border-radius: 50% 50% 0 0;
+}
+
+.hill-1 {
+  width: 300px;
+  height: 120px;
+  left: -50px;
+  animation: parallax 30s infinite linear;
+}
+
+.hill-2 {
+  width: 200px;
+  height: 80px;
+  right: -30px;
+  animation: parallax 25s infinite linear reverse;
+}
+
+.hill-3 {
+  width: 150px;
+  height: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: parallax 35s infinite linear;
+}
+
+/* 성 배경 */
+.castle-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.1) 100%),
+    repeating-linear-gradient(
+      90deg,
+      var(--castle-stone) 0px,
+      var(--castle-stone) 20px,
+      var(--castle-joint) 20px,
+      var(--castle-joint) 22px
+    );
+}
+
+.castle-floor {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: 
+    repeating-conic-gradient(
+      var(--castle-stone) 0deg 90deg,
+      var(--castle-joint) 90deg 180deg
+    );
+  opacity: 0.3;
+}
+
+/* 애니메이션 */
+@keyframes float {
+  0% { transform: translateX(-100px); }
+  100% { transform: translateX(calc(100vw + 100px)); }
+}
+
+@keyframes parallax {
+  0% { transform: translateX(-50px); }
+  100% { transform: translateX(50px); }
+}
+
+/* 모션 감소 대응 */
+@media (prefers-reduced-motion: reduce) {
+  .cloud,
+  .hill {
+    animation: none;
+  }
+}

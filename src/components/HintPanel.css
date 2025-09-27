@@ -1,8 +1,7 @@
 .hint-panel {
-  background-color: #fff;
+  background-color: transparent;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
 
@@ -14,25 +13,28 @@
 }
 
 .hint-panel-header h3 {
-  color: #e63946;
+  color: var(--ink);
   margin: 0;
   font-size: 1.2em;
+  font-family: 'Press Start 2P', monospace;
 }
 
 .weapon-selector {
   padding: 8px 12px;
-  border: 2px solid #e63946;
+  border: 3px solid var(--ink);
   border-radius: 5px;
-  background-color: #fff;
-  color: #333;
+  background-color: var(--card);
+  color: var(--ink);
   font-size: 14px;
   cursor: pointer;
+  box-shadow: 0 2px 0 var(--shadow);
+  font-family: 'Press Start 2P', monospace;
 }
 
 .weapon-selector:focus {
   outline: none;
-  border-color: #dc2f3c;
-  box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.2);
+  border-color: var(--mario-red);
+  box-shadow: 0 0 0 2px var(--mario-red);
 }
 
 .hints-grid {
@@ -44,8 +46,8 @@
 
 .hint-slot {
   position: relative;
-  background-color: #f8f9fa;
-  border: 2px solid #dee2e6;
+  background-color: var(--card);
+  border: 3px solid var(--ink);
   border-radius: 8px;
   padding: 15px;
   min-height: 80px;
@@ -55,17 +57,18 @@
   justify-content: center;
   text-align: center;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 0 var(--shadow);
 }
 
 .hint-slot.unlocked {
-  background-color: #d4edda;
-  border-color: #28a745;
-  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+  background-color: var(--luigi-green);
+  border-color: var(--luigi-green);
+  box-shadow: 0 0 0 4px rgba(46, 204, 64, 0.3);
 }
 
 .hint-slot.locked {
-  background-color: #f8f9fa;
-  border-color: #dee2e6;
+  background-color: var(--card);
+  border-color: var(--ink);
   opacity: 0.6;
 }
 
@@ -115,12 +118,15 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: linear-gradient(135deg, #28a745, #20c997);
-  color: white;
+  background: linear-gradient(135deg, var(--luigi-green), var(--coin-gold));
+  color: var(--card);
   padding: 15px;
   border-radius: 8px;
+  border: 3px solid var(--ink);
+  box-shadow: 0 4px 0 var(--shadow);
   margin-bottom: 15px;
   animation: glow 2s ease-in-out infinite alternate;
+  font-family: 'Press Start 2P', monospace;
 }
 
 .badge-icon {

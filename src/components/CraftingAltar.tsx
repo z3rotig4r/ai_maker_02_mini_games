@@ -4,6 +4,7 @@ import { OrbitControls, useGLTF, Html, Sparkles } from '@react-three/drei';
 import { Group } from 'three';
 import { getMaterialIcon } from '../utils/iconUtils';
 import { MATERIALS_MAP } from '../data/materials';
+import '../styles/theme.css';
 
 interface CraftingAltarProps {
   craftingSlots: (string | null)[];
@@ -47,17 +48,26 @@ function LuckyBoxModel({
     }
   }, [successTick]);
 
-  // 흔들림 애니메이션
+  // 흔들림 애니메이션 + idle bob
   useFrame((state) => {
-    if (isShaking && groupRef.current) {
-      shakeRef.current += 0.3;
-      const intensity = Math.max(0, 0.6 - state.clock.elapsedTime % 0.6);
-      groupRef.current.rotation.z = Math.sin(shakeRef.current) * intensity * 0.1;
-      groupRef.current.position.x = Math.sin(shakeRef.current * 1.5) * intensity * 0.05;
-    } else if (groupRef.current) {
-      // 부드럽게 원래 위치로 복귀
-      groupRef.current.rotation.z *= 0.9;
-      groupRef.current.position.x *= 0.9;
+    if (groupRef.current) {
+      if (isShaking) {
+        // 흔들림 애니메이션
+        shakeRef.current += 0.3;
+        const intensity = Math.max(0, 0.6 - state.clock.elapsedTime % 0.6);
+        groupRef.current.rotation.z = Math.sin(shakeRef.current) * intensity * 0.1;
+        groupRef.current.position.x = Math.sin(shakeRef.current * 1.5) * intensity * 0.05;
+      } else {
+        // 부드럽게 원래 위치로 복귀
+        groupRef.current.rotation.z *= 0.9;
+        groupRef.current.position.x *= 0.9;
+        
+        // idle bob 애니메이션 (motion-reduce 대응)
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          const bobOffset = Math.sin(state.clock.elapsedTime * 1.6) * 0.03;
+          groupRef.current.position.y = bobOffset;
+        }
+      }
     }
   });
 
@@ -121,15 +131,11 @@ function LuckyBoxModel({
                   boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
                 }}
               >
-                <img
-                  src={getMaterialIcon(craftingSlots[index] as keyof typeof MATERIALS_MAP)}
-                  alt={MATERIALS_MAP[craftingSlots[index] as keyof typeof MATERIALS_MAP]?.name || ''}
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    objectFit: 'contain',
-                  }}
-                />
+                            <img
+                              src={getMaterialIcon(craftingSlots[index] as keyof typeof MATERIALS_MAP)}
+                              alt={MATERIALS_MAP[craftingSlots[index] as keyof typeof MATERIALS_MAP]?.name || ''}
+                              className="slot-badge"
+                            />
               </div>
             </Html>
           )}

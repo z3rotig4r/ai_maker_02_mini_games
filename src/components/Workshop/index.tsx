@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import './Workshop.css';
+import '../../styles/theme.css';
 import { GameState, SlotIndex, WeaponId } from '../../types';
 import { MATERIALS_MAP } from '../../data/materials';
 import { getMaterialIcon } from '../../utils/iconUtils';
 import CraftingAltar from '../CraftingAltar';
 import HintPanel from '../HintPanel';
+import MarioBackdrop from '../MarioBackdrop';
 
 interface WorkshopProps {
   gameState: GameState;
@@ -66,10 +68,15 @@ const Workshop: React.FC<WorkshopProps> = ({
 
   return (
     <div className="workshop">
+      <MarioBackdrop variant="sky" />
       {failFlash && <div className="flash-red" />}
       
-      <div className="workshop-header">
-        <h2>키노피오의 발명 작업실</h2>
+      <div className="workshop-header mario-card">
+        <div className="section-header">
+          <div className="coin-dot" />
+          <h2 className="section-title">키노피오의 발명 작업실</h2>
+          <div className="coin-dot" />
+        </div>
         <p>수집한 힌트와 재료를 이용해 전설의 무기를 제작하세요!</p>
       </div>
 
@@ -77,8 +84,12 @@ const Workshop: React.FC<WorkshopProps> = ({
         {/* 힌트 패널 */}
         <HintPanel gameState={gameState} />
 
-        <div className="inventory-section">
-          <h3>보유 재료</h3>
+        <div className="inventory-section mario-card">
+          <div className="section-header">
+            <div className="coin-dot" />
+            <h3 className="section-title">보유 재료</h3>
+            <div className="coin-dot" />
+          </div>
           <div className="inventory-categories">
             <div className="category">
               <h4>생물</h4>
@@ -86,11 +97,13 @@ const Workshop: React.FC<WorkshopProps> = ({
                 {categorizedIngredients.creature.map(ingredient => (
                   <div 
                     key={ingredient.id} 
-                    className={`ingredient-item ${selectedMaterial === ingredient.id ? 'selected' : ''}`}
+                    className={`icon-ring creature ${selectedMaterial === ingredient.id ? 'selected' : ''} focus-ring`}
                     onClick={() => selectMaterial(ingredient.id)}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${ingredient.name} 선택`}
                   >
-                    <img src={getMaterialIcon(ingredient.id as keyof typeof MATERIALS_MAP)} alt={ingredient.name} />
-                    <span>{ingredient.name}</span>
+                    <img src={getMaterialIcon(ingredient.id as keyof typeof MATERIALS_MAP)} alt={ingredient.name} width="48" height="48" />
                   </div>
                 ))}
               </div>
@@ -101,11 +114,13 @@ const Workshop: React.FC<WorkshopProps> = ({
                 {categorizedIngredients.object.map(ingredient => (
                   <div 
                     key={ingredient.id} 
-                    className={`ingredient-item ${selectedMaterial === ingredient.id ? 'selected' : ''}`}
+                    className={`icon-ring object ${selectedMaterial === ingredient.id ? 'selected' : ''} focus-ring`}
                     onClick={() => selectMaterial(ingredient.id)}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${ingredient.name} 선택`}
                   >
-                    <img src={getMaterialIcon(ingredient.id as keyof typeof MATERIALS_MAP)} alt={ingredient.name} />
-                    <span>{ingredient.name}</span>
+                    <img src={getMaterialIcon(ingredient.id as keyof typeof MATERIALS_MAP)} alt={ingredient.name} width="48" height="48" />
                   </div>
                 ))}
               </div>
@@ -116,11 +131,13 @@ const Workshop: React.FC<WorkshopProps> = ({
                 {categorizedIngredients.effect.map(ingredient => (
                   <div 
                     key={ingredient.id} 
-                    className={`ingredient-item ${selectedMaterial === ingredient.id ? 'selected' : ''}`}
+                    className={`icon-ring effect ${selectedMaterial === ingredient.id ? 'selected' : ''} focus-ring`}
                     onClick={() => selectMaterial(ingredient.id)}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${ingredient.name} 선택`}
                   >
-                    <img src={getMaterialIcon(ingredient.id as keyof typeof MATERIALS_MAP)} alt={ingredient.name} />
-                    <span>{ingredient.name}</span>
+                    <img src={getMaterialIcon(ingredient.id as keyof typeof MATERIALS_MAP)} alt={ingredient.name} width="48" height="48" />
                   </div>
                 ))}
               </div>
@@ -128,8 +145,12 @@ const Workshop: React.FC<WorkshopProps> = ({
           </div>
         </div>
 
-        <div className="crafting-section">
-          <h3>무기 제작</h3>
+        <div className="crafting-section mario-card">
+          <div className="section-header">
+            <div className="coin-dot" />
+            <h3 className="section-title">무기 제작</h3>
+            <div className="coin-dot" />
+          </div>
           
           {/* 3D 럭키박스 조합대 */}
           <div className="crafting-altar">
@@ -143,10 +164,10 @@ const Workshop: React.FC<WorkshopProps> = ({
             />
           </div>
 
-          {/* 효과 빠른 선택 칩 */}
+          {/* 효과 빠른 선택 세그먼트 */}
           <div className="effect-chips">
             <h4>효과 빠른 선택</h4>
-            <div className="chips-container">
+            <div className="segment">
               {[
                 { id: 'thunder', emoji: '⚡', name: '우르르쾅쾅' },
                 { id: 'chill', emoji: '❄️', name: '으슬으슬' },
@@ -154,7 +175,7 @@ const Workshop: React.FC<WorkshopProps> = ({
               ].map((effect) => (
                 <button
                   key={effect.id}
-                  className={`effect-chip ${selectedMaterial === effect.id ? 'selected' : ''}`}
+                  aria-pressed={selectedMaterial === effect.id}
                   onClick={() => {
                     console.log('[chip]', effect.id);
                     selectMaterial(effect.id);
@@ -162,6 +183,7 @@ const Workshop: React.FC<WorkshopProps> = ({
                     setTimeout(() => placeOnSlot(2), 100);
                   }}
                   title={effect.name}
+                  className="focus-ring"
                 >
                   <span className="chip-emoji">{effect.emoji}</span>
                   <span className="chip-name">{effect.name}</span>
@@ -171,17 +193,21 @@ const Workshop: React.FC<WorkshopProps> = ({
           </div>
 
           <div className="crafting-controls">
-            <button className="craft-button" onClick={handleCraft}>
+            <button className="btn-mario" onClick={handleCraft}>
               제작하기
             </button>
           </div>
         </div>
 
-        <div className="weapons-section">
-          <h3>제작한 무기</h3>
+        <div className="weapons-section mario-card">
+          <div className="section-header">
+            <div className="coin-dot" />
+            <h3 className="section-title">제작한 무기</h3>
+            <div className="coin-dot" />
+          </div>
           <div className="weapons-grid">
             {weapons.map(weapon => (
-              <div key={weapon.id} className="weapon-item">
+              <div key={weapon.id} className="weapon-item mario-card">
                 <img src={weapon.image} alt={weapon.name} />
                 <span>{weapon.name}</span>
               </div>

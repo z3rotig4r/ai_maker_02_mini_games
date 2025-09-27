@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { GameState } from '../types';
 import './HintPanel.css';
+import '../styles/theme.css';
 
 interface HintPanelProps {
   gameState: GameState;
@@ -42,13 +43,17 @@ const HintPanel: React.FC<HintPanelProps> = ({ gameState }) => {
   const isComplete = unlockedCount >= 4;
 
   return (
-    <div className="hint-panel">
+    <div className="hint-panel mario-card">
       <div className="hint-panel-header">
-        <h3>무기 제작 힌트</h3>
+        <div className="section-header">
+          <div className="coin-dot" />
+          <h3 className="section-title">무기 제작 힌트</h3>
+          <div className="coin-dot" />
+        </div>
         <select 
           value={selectedWeapon} 
           onChange={(e) => setSelectedWeapon(e.target.value as 'boo_shell_mace' | 'goomba_ice_hammer' | 'cheep_water_cannon')}
-          className="weapon-selector"
+          className="weapon-selector focus-ring"
         >
           {Object.entries(weaponNames).map(([key, name]) => (
             <option key={key} value={key}>{name}</option>

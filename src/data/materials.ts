@@ -1,14 +1,14 @@
 // src/data/materials.ts
 export const MATERIALS_MAP = {
   // creatures
-  boo:    { kind: 'creature', name: '고스트', icon: '/assets/icons/creature_boo.jpg' },
-  goomba: { kind: 'creature', name: '굼바',   icon: '/assets/icons/creature_goomba.jpg' },
-  pokku:  { kind: 'creature', name: '뽀꾸미', icon: '/assets/icons/creature_pokku.jpg' },
+  boo:    { kind: 'creature', name: '고스트', icon: '/assets/icons/creature_boo.png' },
+  goomba: { kind: 'creature', name: '굼바',   icon: '/assets/icons/creature_goomba.png' },
+  pokku:  { kind: 'creature', name: '뽀꾸미', icon: '/assets/icons/creature_pokku.png' },
 
   // objects
-  shell:        { kind: 'object', name: '등껍질',    icon: '/assets/icons/object_shell.jpg' },
+  shell:        { kind: 'object', name: '등껍질',    icon: '/assets/icons/object_shell.png' },
   icicle:       { kind: 'object', name: '고드름',    icon: '/assets/icons/object_icicle.png' },
-  water_cannon: { kind: 'object', name: '물대포',    icon: '/assets/icons/object_water_cannon.png' }, // TODO: 파일명 통일
+  water_cannon: { kind: 'object', name: '물대포',    icon: '/assets/icons/object_water_cannon.png' },
 
   // effects
   thunder: { kind: 'effect', name: '우르르쾅쾅', icon: '/assets/icons/effect_thunder.png' },

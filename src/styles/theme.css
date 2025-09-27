@@ -1,0 +1,260 @@
+/* src/styles/theme.css - 마리오 테마 토큰 */
+:root {
+  /* 마리오 컬러 팔레트 */
+  --mario-red: #e52521;
+  --luigi-green: #2ecc40;
+  --coin-gold: #f5c400;
+  
+  /* 하늘 배경 */
+  --sky-top: #87ceeb;
+  --sky-bottom: #d0f4ff;
+  
+  /* 자연 요소 */
+  --hill: #6ac36a;
+  --cloud: #ffffff;
+  
+  /* 성/벽돌 */
+  --castle-stone: #3b3b44;
+  --castle-joint: #2b2b33;
+  
+  /* UI 기본 */
+  --ink: #1f2937;
+  --card: #ffffff;
+  --shadow: #00000022;
+}
+
+/* 전역 스타일 */
+* {
+  box-sizing: border-box;
+}
+
+button {
+  min-height: 44px;
+}
+
+/* 폰트 import */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* 마리오 스타일 버튼 */
+.btn-mario {
+  border: 3px solid var(--ink);
+  background: var(--coin-gold);
+  border-radius: 12px;
+  box-shadow: 0 4px 0 var(--ink);
+  font-weight: 800;
+  transition: transform 0.06s;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  padding: 12px 20px;
+  cursor: pointer;
+}
+
+.btn-mario:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--ink);
+}
+
+.btn-mario:focus-visible {
+  outline: 3px solid var(--mario-red);
+  outline-offset: 2px;
+}
+
+/* 아이콘 링 - 흰색 원형 배경으로 통일 */
+.icon-ring {
+  width: 80px;
+  height: 80px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 3px solid var(--ink);
+  background: #ffffff;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+  transition: transform 0.12s;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.icon-ring.creature {
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
+}
+
+.icon-ring.object {
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
+}
+
+.icon-ring.effect {
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.25);
+}
+
+.icon-ring.selected {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.icon-ring:focus-visible {
+  outline: 3px solid var(--mario-red);
+  outline-offset: 2px;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .icon-ring {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+/* 세그먼트 토글 - 강화된 스타일 */
+.segment {
+  display: inline-flex;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.segment > button {
+  padding: 10px 16px;
+  border: 0;
+  background: transparent;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 44px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+}
+
+.segment > button[aria-pressed="true"] {
+  background: linear-gradient(0deg, rgba(245, 196, 0, 0.9), rgba(255, 234, 130, 0.95));
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
+}
+
+.segment > button:not([aria-pressed="true"]) {
+  filter: saturate(0.6);
+}
+
+.segment > button:focus-visible {
+  outline: 3px solid var(--mario-red);
+  outline-offset: 2px;
+}
+
+/* 슬롯 할로 */
+.slot-halo {
+  width: 96px;
+  height: 96px;
+  border: 3px dashed var(--ink);
+  border-radius: 999px;
+  opacity: 0.4;
+  transition: box-shadow 0.2s;
+}
+
+.slot-halo.valid.creature {
+  box-shadow: 0 0 18px 2px #22c55e;
+}
+
+.slot-halo.valid.object {
+  box-shadow: 0 0 18px 2px #3b82f6;
+}
+
+.slot-halo.valid.effect {
+  box-shadow: 0 0 18px 2px #8b5cf6;
+}
+
+/* 코인 반짝 애니메이션 */
+@keyframes shine {
+  from { filter: brightness(1); }
+  50% { filter: brightness(1.5); }
+  to { filter: brightness(1); }
+}
+
+.coin-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--coin-gold);
+  border: 2px solid var(--ink);
+  animation: shine 1.8s infinite;
+}
+
+/* 모션 감소 대응 */
+@media (prefers-reduced-motion: reduce) {
+  .coin-dot {
+    animation: none;
+  }
+  
+  .icon-ring {
+    transition: none;
+  }
+  
+  .slot-halo {
+    transition: none;
+  }
+  
+  .btn-mario {
+    transition: none;
+  }
+}
+
+/* 섹션 헤더 스타일 */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: var(--ink);
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--coin-gold), var(--mario-red));
+  border-radius: 2px;
+}
+
+/* 카드 스타일 - 반투명 어두운 유리 효과 */
+.mario-card {
+  border: 3px solid var(--ink);
+  box-shadow: 0 6px 0 #0b0f14;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(6px);
+  padding: 16px;
+}
+
+/* 포커스 링 */
+.focus-ring:focus-visible {
+  outline: 3px solid var(--mario-red);
+  outline-offset: 2px;
+}
+
+/* 슬롯 뱃지 - 흰색 원형 배경으로 통일 */
+.slot-badge {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  border: 3px solid var(--ink);
+  object-fit: cover;
+  aspect-ratio: 1 / 1;
+  background: #ffffff;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.45));
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .slot-badge {
+    width: 48px;
+    height: 48px;
+  }
+}
