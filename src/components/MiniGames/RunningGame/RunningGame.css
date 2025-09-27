@@ -80,7 +80,7 @@
   background: url('./assets/coin.png') no-repeat;
   background-size: contain;
   position: absolute;
-  bottom: 100px; /* 캐릭터보다 위에 배치 */
+  bottom: 80px; /* 캐릭터보다 약간 위에 배치 */
   animation: float 1.5s infinite ease-in-out;
   z-index: 1;
   will-change: transform;
@@ -90,8 +90,14 @@
   0%, 100% {
     transform: translateY(0) rotateY(0);
   }
+  25% {
+    transform: translateY(-10px) rotateY(90deg);
+  }
   50% {
-    transform: translateY(-60px) rotateY(180deg);
+    transform: translateY(-20px) rotateY(180deg);
+  }
+  75% {
+    transform: translateY(-10px) rotateY(270deg);
   }
 }
 
