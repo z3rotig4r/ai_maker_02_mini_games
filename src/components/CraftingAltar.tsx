@@ -1,7 +1,7 @@
 import React, { Suspense, useRef, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF, Html } from '@react-three/drei';
-import { Group, Mesh } from 'three';
+import { Group } from 'three';
 import { getMaterialIcon } from '../utils/iconUtils';
 import { MATERIALS_MAP } from '../data/materials';
 
@@ -16,7 +16,6 @@ interface CraftingAltarProps {
 // 3D 모델 컴포넌트
 function LuckyBoxModel({ 
   craftingSlots, 
-  selectedMaterial, 
   onSlotClick, 
   isShaking, 
   lastRejectedSlot 
@@ -51,7 +50,7 @@ function LuckyBoxModel({
   });
 
   // 슬롯 위치 (모델 높이에 맞게 조정)
-  const slotPositions = [
+  const slotPositions: [number, number, number][] = [
     [-0.6, 0.9, 0], // 왼쪽 슬롯
     [0, 0.9, 0],    // 중앙 슬롯
     [0.6, 0.9, 0]   // 오른쪽 슬롯

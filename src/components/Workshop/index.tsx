@@ -21,7 +21,7 @@ const Workshop: React.FC<WorkshopProps> = ({
   handleCraft, 
   clearToast 
 }) => {
-  const { inventory, weapons, hints, selectedMaterial, craftingSlots, showToast, toastMessage, isShaking, lastRejectedSlot } = gameState;
+  const { inventory, weapons, selectedMaterial, craftingSlots, showToast, toastMessage, isShaking, lastRejectedSlot } = gameState;
 
   // 보유한 재료들을 종류별로 분류
   const categorizedIngredients = {

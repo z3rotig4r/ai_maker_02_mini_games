@@ -47,7 +47,7 @@ const HintPanel: React.FC<HintPanelProps> = ({ gameState }) => {
         <h3>무기 제작 힌트</h3>
         <select 
           value={selectedWeapon} 
-          onChange={(e) => setSelectedWeapon(e.target.value as any)}
+          onChange={(e) => setSelectedWeapon(e.target.value as 'boo_shell_mace' | 'goomba_ice_hammer' | 'cheep_water_cannon')}
           className="weapon-selector"
         >
           {Object.entries(weaponNames).map(([key, name]) => (
