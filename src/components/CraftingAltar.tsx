@@ -1,28 +1,26 @@
-import React, { Suspense, useRef, useEffect } from 'react';
+import React, { Suspense, useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, useGLTF, Html } from '@react-three/drei';
+import { OrbitControls, useGLTF, Html, Sparkles } from '@react-three/drei';
 import { Group } from 'three';
 import { getMaterialIcon } from '../utils/iconUtils';
 import { MATERIALS_MAP } from '../data/materials';
-import { SlotIndex } from '../types';
-import './CraftingAltar.css';
 
 interface CraftingAltarProps {
   craftingSlots: (string | null)[];
   selectedMaterial: string | null;
   onSlotClick: (slot: number) => void;
-  onSlotRemove: (slot: SlotIndex) => void;
   isShaking: boolean;
   lastRejectedSlot: number | null;
+  successTick: number;
 }
 
 // 3D 모델 컴포넌트
 function LuckyBoxModel({ 
   craftingSlots, 
   onSlotClick, 
-  onSlotRemove,
   isShaking, 
-  lastRejectedSlot 
+  lastRejectedSlot,
+  successTick
 }: CraftingAltarProps) {
   let scene;
   try {
@@ -38,6 +36,16 @@ function LuckyBoxModel({
   
   const groupRef = useRef<Group>(null);
   const shakeRef = useRef(0);
+  const [celebrate, setCelebrate] = useState(false);
+
+  // 성공 축포 효과
+  useEffect(() => {
+    if (successTick > 0) {
+      setCelebrate(true);
+      const timer = setTimeout(() => setCelebrate(false), 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [successTick]);
 
   // 흔들림 애니메이션
   useFrame((state) => {
@@ -77,19 +85,7 @@ function LuckyBoxModel({
         <group key={index} position={position}>
           {/* 투명한 클릭 영역 */}
           <mesh
-            onPointerDown={(e) => {
-              // 우클릭 or Shift+클릭 → 제거
-              if (e.button === 2 || e.nativeEvent?.button === 2 || e.shiftKey) {
-                e.stopPropagation();
-                onSlotRemove(index as SlotIndex);
-                return;
-              }
-              // 좌클릭 → 배치 시도
-              onSlotClick(index);
-            }}
-            onContextMenu={(e) => {
-              e.stopPropagation();
-            }}
+            onPointerDown={() => onSlotClick(index)}
             onPointerOver={(e) => {
               e.stopPropagation();
               document.body.style.cursor = 'pointer';
@@ -137,27 +133,6 @@ function LuckyBoxModel({
               </div>
             </Html>
           )}
-
-          {/* 비우기 버튼 (아이템 있을 때만, 클릭 가능) */}
-          {craftingSlots[index] && (
-            <Html
-              transform
-              position={[0.22, 0.12, 0]} // 슬롯 우상단쯤
-              distanceFactor={10}
-              style={{ pointerEvents: 'auto' }} // ← 중요: 클릭 허용
-            >
-              <button
-                className="slot-x"
-                aria-label="슬롯 비우기"
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  onSlotRemove(index as SlotIndex); 
-                }}
-              >
-                ×
-              </button>
-            </Html>
-          )}
           
           {/* 거부된 슬롯 표시 */}
           {lastRejectedSlot === index && (
@@ -185,12 +160,22 @@ function LuckyBoxModel({
                 <span style={{ color: 'white', fontSize: '20px' }}>✕</span>
               </div>
             </Html>
-          )}
-        </group>
-      ))}
-    </group>
-  );
-}
+           )}
+         </group>
+       ))}
+       
+       {/* 성공 축포 효과 */}
+       {celebrate && (
+         <Sparkles 
+           count={60} 
+           scale={2.6} 
+           speed={2} 
+           position={[0, 1, 0]} 
+         />
+       )}
+     </group>
+   );
+ }
 
 // 로딩 컴포넌트
 function LoadingFallback() {
@@ -224,16 +209,7 @@ const CraftingAltar: React.FC<CraftingAltarProps> = (props) => {
   }, []);
 
   return (
-    <div 
-      style={{ 
-        height: '380px', 
-        width: '100%', 
-        position: 'relative',
-        borderRadius: '12px', 
-        border: '2px solid #ddd' 
-      }}
-      onContextMenu={(e) => e.preventDefault()} // ← 브라우저 컨텍스트 메뉴 막기
-    >
+    <div style={{ height: '380px', width: '100%', position: 'relative' }}>
       <Canvas
         camera={{ position: [0, 1, 3], fov: 50 }}
         style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}

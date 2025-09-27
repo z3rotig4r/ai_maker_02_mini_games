@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
-import { GameState, GamePhase, Ingredient, SlotIndex, SlotKind } from '../types';
+import { GameState, GamePhase, Ingredient, SlotIndex, SlotKind, WeaponId } from '../types';
 import { MATERIALS_MAP } from '../data/materials';
 import { matchRecipe } from '../data/recipes';
+import { playSfx } from '../utils/sfx';
 
 const initialState: GameState = {
   currentPhase: 'A',
@@ -60,7 +61,9 @@ const initialState: GameState = {
   lastRejectedSlot: null,
   showToast: false,
   toastMessage: '',
-  isShaking: false
+  isShaking: false,
+  crafted: [],
+  successTick: 0
 };
 
 const useGame = () => {
@@ -214,17 +217,6 @@ const useGame = () => {
     }));
   }, []);
 
-  const removeFromSlot = useCallback((slot: SlotIndex) => {
-    setGameState(prev => {
-      const next = [...prev.craftingSlots];
-      next[slot] = null;
-      return {
-        ...prev,
-        craftingSlots: next
-      };
-    });
-  }, []);
-
   const handleCraft = useCallback(() => {
     setGameState(prev => {
       const startTime = Date.now();
@@ -253,24 +245,23 @@ const useGame = () => {
       
       if (result) {
         // 성공: 결과 카드 표출 + 슬롯 초기화 (재료 미차감)
-        const newWeapon = {
-          id: result,
-          name: result.replace(/_/g, ' '),
-          requiredIngredients: prev.craftingSlots.filter(Boolean) as string[],
-          image: `/assets/weapons/${result}.png`
-        };
+        playSfx('success');
         
         return {
           ...prev,
-          weapons: [...prev.weapons, newWeapon],
+          weapons: [...prev.weapons, { id: result, name: result.replace(/_/g, ' '), requiredIngredients: prev.craftingSlots.filter(Boolean) as string[], image: `/assets/weapons/${result}.png` }],
+          crafted: [...prev.crafted, result as WeaponId],
           craftingSlots: [null, null, null],
           selectedMaterial: null,
           showToast: true,
           toastMessage: '제작 성공!',
-          isShaking: false
+          isShaking: false,
+          successTick: prev.successTick + 1
         };
       } else {
         // 실패: 슬롯 유지 + 토스트/흔들림
+        playSfx('fail');
+        
         return {
           ...prev,
           showToast: true,
@@ -301,7 +292,6 @@ const useGame = () => {
     selectMaterial,
     placeOnSlot,
     clearSlots,
-    removeFromSlot,
     handleCraft,
     clearToast
   };

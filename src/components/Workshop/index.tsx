@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Workshop.css';
-import { GameState, SlotIndex } from '../../types';
+import { GameState, SlotIndex, WeaponId } from '../../types';
 import { MATERIALS_MAP } from '../../data/materials';
 import { getMaterialIcon } from '../../utils/iconUtils';
 import CraftingAltar from '../CraftingAltar';
@@ -10,7 +10,6 @@ interface WorkshopProps {
   gameState: GameState;
   selectMaterial: (materialId: string) => void;
   placeOnSlot: (slot: SlotIndex) => void;
-  removeFromSlot: (slot: SlotIndex) => void;
   handleCraft: () => void;
   clearToast: () => void;
 }
@@ -19,11 +18,12 @@ const Workshop: React.FC<WorkshopProps> = ({
   gameState, 
   selectMaterial, 
   placeOnSlot, 
-  removeFromSlot,
   handleCraft, 
   clearToast 
 }) => {
-  const { inventory, weapons, selectedMaterial, craftingSlots, showToast, toastMessage, isShaking, lastRejectedSlot } = gameState;
+  const { inventory, weapons, selectedMaterial, craftingSlots, showToast, toastMessage, isShaking, lastRejectedSlot, crafted, successTick } = gameState;
+  const [failFlash, setFailFlash] = useState(false);
+  const [result, setResult] = useState<WeaponId | null>(null);
 
   // 보유한 재료들을 종류별로 분류
   const categorizedIngredients = {
@@ -42,8 +42,32 @@ const Workshop: React.FC<WorkshopProps> = ({
     }
   }, [showToast, clearToast]);
 
+  // 실패 플래시 효과
+  useEffect(() => {
+    if (isShaking) {
+      setFailFlash(true);
+      const timer = setTimeout(() => setFailFlash(false), 200);
+      return () => clearTimeout(timer);
+    }
+  }, [isShaking]);
+
+  // 성공 시 결과 카드 표시
+  useEffect(() => {
+    if (successTick > 0 && crafted.length > 0) {
+      const latestWeapon = crafted[crafted.length - 1];
+      setResult(latestWeapon);
+      const timer = setTimeout(() => setResult(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successTick, crafted]);
+
+  // 모든 무기 제작 완료 여부
+  const allCrafted = new Set(crafted).size >= 3;
+
   return (
     <div className="workshop">
+      {failFlash && <div className="flash-red" />}
+      
       <div className="workshop-header">
         <h2>키노피오의 발명 작업실</h2>
         <p>수집한 힌트와 재료를 이용해 전설의 무기를 제작하세요!</p>
@@ -113,9 +137,9 @@ const Workshop: React.FC<WorkshopProps> = ({
               craftingSlots={craftingSlots}
               selectedMaterial={selectedMaterial}
               onSlotClick={(slot) => placeOnSlot(slot as SlotIndex)}
-              onSlotRemove={removeFromSlot}
               isShaking={isShaking}
               lastRejectedSlot={lastRejectedSlot}
+              successTick={successTick}
             />
           </div>
 
@@ -170,6 +194,30 @@ const Workshop: React.FC<WorkshopProps> = ({
       {showToast && (
         <div className={`toast ${isShaking ? 'shaking' : ''}`}>
           {toastMessage}
+        </div>
+      )}
+
+      {/* 결과 카드 */}
+      {result && (
+        <div className="result-card">
+          <img src={`/assets/weapons/${result}.png`} alt={result.replace(/_/g, ' ')} />
+          <div>
+            <h3>제작 성공! {result.replace(/_/g, ' ')}</h3>
+            <p>전설의 무기를 획득했어요! 다른 조합도 도전해 볼까요?</p>
+          </div>
+        </div>
+      )}
+
+      {/* 보스 모달 */}
+      {allCrafted && (
+        <div className="boss-modal">
+          <div className="panel">
+            <h2>모든 전설의 무기 완성! 🏆</h2>
+            <p>이제 쿠파를 물리치러 갑시다!</p>
+            <button onClick={() => alert('보스전 씬으로 전환 (TODO)')}>
+              보스전 시작
+            </button>
+          </div>
         </div>
       )}
     </div>

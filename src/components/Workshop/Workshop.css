@@ -165,6 +165,111 @@
   box-shadow: 0 2px 8px rgba(230, 57, 70, 0.3);
 }
 
+/* 실패 플래시 효과 */
+.flash-red {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 0, 0, 0.15);
+  pointer-events: none;
+  animation: fade 0.2s ease-out;
+  z-index: 10;
+}
+
+@keyframes fade {
+  from { opacity: 0.9; }
+  to { opacity: 0; }
+}
+
+/* 결과 카드 */
+.result-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 2px solid #333;
+  border-radius: 12px;
+  background: #fff8e1;
+  animation: pop 0.18s ease-out;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.result-card img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.result-card h3 {
+  margin: 0 0 4px 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.result-card p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+@keyframes pop {
+  from { transform: translate(-50%, -50%) scale(0.96); opacity: 0.4; }
+  to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* 보스 모달 */
+.boss-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: grid;
+  place-items: center;
+  z-index: 2000;
+}
+
+.boss-modal .panel {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 16px;
+  width: min(90vw, 420px);
+  text-align: center;
+  border: 2px solid #333;
+  animation: pop 0.18s ease-out;
+}
+
+.boss-modal h2 {
+  margin: 0 0 12px 0;
+  color: #333;
+  font-size: 20px;
+}
+
+.boss-modal p {
+  margin: 0 0 16px 0;
+  color: #666;
+  font-size: 16px;
+}
+
+.boss-modal button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 2px solid #333;
+  background: #ffcc00;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.boss-modal button:hover {
+  background: #ffd700;
+  transform: translateY(-1px);
+}
+
 .chip-emoji {
   font-size: 24px;
   line-height: 1;

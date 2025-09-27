@@ -53,6 +53,8 @@ export interface GameState {
   showToast: boolean;
   toastMessage: string;
   isShaking: boolean;
+  crafted: WeaponId[];
+  successTick: number;
 }
 
 // 개발 모드용 전역 타입 선언

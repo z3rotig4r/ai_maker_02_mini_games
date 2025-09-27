@@ -8,14 +8,13 @@ import Workshop from '../Workshop';
 import './Game.css';
 
 const Game: React.FC = () => {
-  const {
+  const { 
     gameState,
     startMiniGame,
     completeMiniGame,
     switchPhase,
     selectMaterial,
     placeOnSlot,
-    removeFromSlot,
     handleCraft,
     clearToast
   } = useGame();
@@ -72,14 +71,13 @@ const Game: React.FC = () => {
 
   const renderPhaseB = () => (
     <div className="phase-b">
-        <Workshop
-          gameState={gameState}
-          selectMaterial={selectMaterial}
-          placeOnSlot={placeOnSlot}
-          removeFromSlot={removeFromSlot}
-          handleCraft={handleCraft}
-          clearToast={clearToast}
-        />
+      <Workshop 
+        gameState={gameState}
+        selectMaterial={selectMaterial}
+        placeOnSlot={placeOnSlot}
+        handleCraft={handleCraft}
+        clearToast={clearToast}
+      />
     </div>
   );
 
