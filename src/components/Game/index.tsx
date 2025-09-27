@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React from 'react';
 import useGame from '../../hooks/useGame';
 import RunningGame from '../MiniGames/RunningGame';
 import MemoryGame from '../MiniGames/MemoryGame';
@@ -74,7 +74,6 @@ const Game: React.FC = () => {
     <div className="phase-b">
       <Workshop 
         gameState={gameState}
-        onCraftWeapon={craftWeapon}
         selectMaterial={selectMaterial}
         placeOnSlot={placeOnSlot}
         handleCraft={handleCraft}

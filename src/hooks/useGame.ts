@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { GameState, GamePhase, Ingredient, SlotIndex, SlotKind } from '../types';
 import { MATERIALS_MAP } from '../data/materials';
+import { matchRecipe } from '../data/recipes';
 
 const initialState: GameState = {
   currentPhase: 'A',
@@ -135,7 +136,7 @@ const useGame = () => {
     }));
   }, []);
 
-  const craftWeapon = useCallback((ingredients: Ingredient[]) => {
+  const craftWeapon = useCallback(() => {
     // 무기 제작 로직 구현
     // TODO: 올바른 재료 조합인지 확인하고 결과 반환
   }, []);
@@ -188,7 +189,6 @@ const useGame = () => {
 
   const handleCraft = useCallback(() => {
     setGameState(prev => {
-      const { matchRecipe } = require('../data/recipes');
       const result = matchRecipe(prev.craftingSlots[0], prev.craftingSlots[1], prev.craftingSlots[2]);
       
       if (result) {

@@ -1,21 +1,19 @@
 import React, { useEffect } from 'react';
 import './Workshop.css';
-import { GameState, Ingredient } from '../../types';
+import { GameState, Ingredient, SlotIndex } from '../../types';
 import { MATERIALS_MAP } from '../../data/materials';
 import { getMaterialIcon } from '../../utils/iconUtils';
 
 interface WorkshopProps {
   gameState: GameState;
-  onCraftWeapon: (ingredients: Ingredient[]) => void;
   selectMaterial: (materialId: string) => void;
-  placeOnSlot: (slot: number) => void;
+  placeOnSlot: (slot: SlotIndex) => void;
   handleCraft: () => void;
   clearToast: () => void;
 }
 
 const Workshop: React.FC<WorkshopProps> = ({ 
   gameState, 
-  onCraftWeapon, 
   selectMaterial, 
   placeOnSlot, 
   handleCraft, 
