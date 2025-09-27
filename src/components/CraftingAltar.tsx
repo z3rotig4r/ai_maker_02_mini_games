@@ -73,7 +73,7 @@ function LuckyBoxModel({
         <group key={index} position={position}>
           {/* 투명한 클릭 영역 */}
           <mesh
-            onClick={() => onSlotClick(index)}
+            onPointerDown={() => onSlotClick(index)}
             onPointerOver={(e) => {
               e.stopPropagation();
               document.body.style.cursor = 'pointer';
@@ -82,8 +82,8 @@ function LuckyBoxModel({
               document.body.style.cursor = 'auto';
             }}
           >
-            <boxGeometry args={[0.4, 0.1, 0.4]} />
-            <meshBasicMaterial transparent opacity={0} />
+            <boxGeometry args={[0.5, 0.2, 0.5]} />
+            <meshStandardMaterial transparent opacity={0.01} />
           </mesh>
           
           {/* 배치된 재료 아이콘 오버레이 */}

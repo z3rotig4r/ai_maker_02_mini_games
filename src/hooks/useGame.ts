@@ -140,15 +140,35 @@ const useGame = () => {
   // 워크샵 관련 함수들
   const selectMaterial = useCallback((materialId: string) => {
     console.log('[selectMaterial] materialId:', materialId);
-    setGameState(prev => ({
-      ...prev,
-      selectedMaterial: materialId
-    }));
+    setGameState(prev => {
+      const mat = MATERIALS_MAP[materialId as keyof typeof MATERIALS_MAP];
+      if (!mat) {
+        console.log('[selectMaterial] Material not found in MATERIALS_MAP:', materialId);
+        return { ...prev, selectedMaterial: materialId };
+      }
+
+      // 자동 배치: 해당 카테고리 슬롯의 빈칸에 바로 배치
+      const targetSlot: SlotIndex = mat.kind === 'creature' ? 0 : mat.kind === 'object' ? 1 : 2;
+      
+      if (prev.craftingSlots[targetSlot] === null) {
+        console.log('[selectMaterial] Auto-placing in slot:', targetSlot);
+        const next = [...prev.craftingSlots];
+        next[targetSlot] = materialId;
+        return {
+          ...prev,
+          selectedMaterial: null,
+          craftingSlots: next
+        };
+      }
+
+      return { ...prev, selectedMaterial: materialId };
+    });
   }, []);
 
   const placeOnSlot = useCallback((slot: SlotIndex) => {
     setGameState(prev => {
       console.log('[placeOnSlot] slot:', slot, 'selectedMaterial:', prev.selectedMaterial);
+      console.log('[slots before]', prev.craftingSlots);
       
       if (!prev.selectedMaterial) {
         console.log('[placeOnSlot] No selected material');
@@ -158,7 +178,7 @@ const useGame = () => {
       const want: SlotKind = slot === 0 ? 'creature' : slot === 1 ? 'object' : 'effect';
       const mat = MATERIALS_MAP[prev.selectedMaterial as keyof typeof MATERIALS_MAP];
       
-      console.log('[placeOnSlot] want:', want, 'mat:', mat);
+      console.log('[meta]', mat?.kind, 'want=', want);
       
       if (!mat || mat.kind !== want) {
         // 카테고리 불일치 - 거부 피드백

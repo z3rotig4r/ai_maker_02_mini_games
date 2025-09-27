@@ -129,6 +129,7 @@ const Workshop: React.FC<WorkshopProps> = ({
                   key={effect.id}
                   className={`effect-chip ${selectedMaterial === effect.id ? 'selected' : ''}`}
                   onClick={() => {
+                    console.log('[chip]', effect.id);
                     selectMaterial(effect.id);
                     // 자동으로 3번 슬롯에 배치
                     setTimeout(() => placeOnSlot(2), 100);
