@@ -9,5 +9,7 @@ export function playSfx(name: keyof typeof sfx, volume = 0.8) {
   if (!a) return;
   a.volume = volume;
   a.currentTime = 0;
-  a.play().catch(() => {});
+  a.play().catch(() => {
+    // SFX 재생 실패 시 무시 (파일이 없거나 브라우저 정책으로 인한 차단)
+  });
 }
