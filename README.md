@@ -1,15 +1,33 @@
 # Contents of /react-game/react-game/README.md
 
-# React Game Project
+# AI Maker 02 Mini Games
 
-This project is a React-based game that implements a fun and interactive gaming experience. 
+This project is a React-based game that implements a fun and interactive gaming experience with mini-games and weapon crafting workshop.
 
 ## Features
 
-- Game board rendering
-- Game controls for starting and resetting the game
-- Custom hooks for game state management
-- Utility functions for game logic
+- Multiple mini-games (Running, Memory, Rhythm, Catching)
+- Weapon crafting workshop with 3D elements
+- Material collection and recipe system
+- Game state management with custom hooks
+- Three.js integration for 3D models
+
+## Asset Structure
+
+### Icons (Mixed Extensions)
+- **Creatures**: `creature_boo.jpg`, `creature_goomba.jpg`, `creature_pokku.jpg`
+- **Objects**: `object_shell.jpg`, `object_icicle.png`, `object_water_cannon.png`
+- **Effects**: `effect_thunder.png`, `effect_chill.png`, `effect_splash.png`
+
+**Note**: Currently using mixed JPG/PNG extensions. TODO: Rename `object_water_cannon.png` for consistency.
+
+### Models
+- `lucky_box.glb` - 3D model for workshop
+
+### Weapons
+- `boo_shell_mace.png`
+- `goomba_ice_hammer.png` 
+- `cheep_water_cannon.png`
 
 ## Getting Started
 

@@ -1,6 +1,8 @@
 import React from 'react';
 import './Workshop.css';
 import { GameState, Ingredient, Weapon } from '../../types';
+import { MATERIALS_MAP } from '../../data/materials';
+import { getMaterialIcon } from '../../utils/iconUtils';
 
 interface WorkshopProps {
   gameState: GameState;
@@ -13,8 +15,8 @@ const Workshop: React.FC<WorkshopProps> = ({ gameState, onCraftWeapon }) => {
   // 보유한 재료들을 종류별로 분류
   const categorizedIngredients = {
     creature: inventory.filter(item => item.type === 'creature'),
-    gem: inventory.filter(item => item.type === 'gem'),
-    item: inventory.filter(item => item.type === 'item'),
+    object: inventory.filter(item => item.type === 'object'),
+    effect: inventory.filter(item => item.type === 'effect'),
   };
 
   return (
@@ -45,29 +47,29 @@ const Workshop: React.FC<WorkshopProps> = ({ gameState, onCraftWeapon }) => {
               <div className="ingredients-grid">
                 {categorizedIngredients.creature.map(ingredient => (
                   <div key={ingredient.id} className="ingredient-item">
-                    <img src={ingredient.image} alt={ingredient.name} />
+                    <img src={getMaterialIcon(ingredient.id as keyof typeof MATERIALS_MAP)} alt={ingredient.name} />
                     <span>{ingredient.name}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div className="category">
-              <h4>보석</h4>
+              <h4>물건</h4>
               <div className="ingredients-grid">
-                {categorizedIngredients.gem.map(ingredient => (
+                {categorizedIngredients.object.map(ingredient => (
                   <div key={ingredient.id} className="ingredient-item">
-                    <img src={ingredient.image} alt={ingredient.name} />
+                    <img src={getMaterialIcon(ingredient.id as keyof typeof MATERIALS_MAP)} alt={ingredient.name} />
                     <span>{ingredient.name}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div className="category">
-              <h4>아이템</h4>
+              <h4>효과</h4>
               <div className="ingredients-grid">
-                {categorizedIngredients.item.map(ingredient => (
+                {categorizedIngredients.effect.map(ingredient => (
                   <div key={ingredient.id} className="ingredient-item">
-                    <img src={ingredient.image} alt={ingredient.name} />
+                    <img src={getMaterialIcon(ingredient.id as keyof typeof MATERIALS_MAP)} alt={ingredient.name} />
                     <span>{ingredient.name}</span>
                   </div>
                 ))}
