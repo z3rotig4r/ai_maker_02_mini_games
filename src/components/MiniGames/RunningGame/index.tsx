@@ -11,7 +11,6 @@ const JUMP_FORCE = -15;
 const GAME_SPEED = 5; // 속도 감소
 const OBSTACLE_SPAWN_RATE = 0.02;
 const COIN_SPAWN_RATE = 0.03;
-const GROUND_HEIGHT = 90; // 기본 지면 높이
 const JUMP_HEIGHT = 150;  // 점프 최대 높이
 
 const RunningGame: React.FC<RunningGameProps> = ({ difficulty, onComplete }) => {

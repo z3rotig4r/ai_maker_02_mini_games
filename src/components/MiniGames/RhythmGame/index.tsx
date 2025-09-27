@@ -154,8 +154,7 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
           if (updatedNotes.length < 5) { // 화면에 노트가 5개 미만이면 새로 생성
             const bpm = 120;
             const beatInterval = 60000 / bpm;
-            const noteInterval = beatInterval;
-            const speedMultiplier = Math.max(0.7, 1 - (difficulty - 1) * 0.05);
+            Math.max(0.7, 1 - (difficulty - 1) * 0.05);
             
             const position = Math.floor(Math.random() * 4);
             const newNote: Note = {

@@ -134,7 +134,6 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
       // 아이템 업데이트와 충돌 처리
       setItems(prev => {
         const now = Date.now();
-        let bombHit = false;
 
         // 속도 계산
         const speed = BASE_SPEED * difficulty * (deltaTime / 16.667);  // 60fps 기준 정규화
@@ -155,7 +154,6 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
           if (isColliding) {
             if (item.type === 'bomb') {
               if (now - lastCollisionTime >= COLLISION_COOLDOWN) {
-                bombHit = true;
                 setLastCollisionTime(now);
                 const newLives = lives - 1;
                 setLives(newLives);
