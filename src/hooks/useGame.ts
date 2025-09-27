@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import { GameState, GamePhase, MiniGame, Ingredient } from '../types';
+import { GameState, GamePhase, Ingredient, SlotIndex, SlotKind } from '../types';
+import { MATERIALS_MAP } from '../data/materials';
 
 const initialState: GameState = {
   currentPhase: 'A',
@@ -37,10 +38,28 @@ const initialState: GameState = {
       hint: ''
     }
   ],
-  inventory: [],
+  inventory: [
+    // 테스트용 재료 추가
+    { id: 'boo', name: '고스트', type: 'creature', image: '/assets/icons/creature_boo.jpg' },
+    { id: 'goomba', name: '굼바', type: 'creature', image: '/assets/icons/creature_goomba.jpg' },
+    { id: 'pokku', name: '뽀꾸미', type: 'creature', image: '/assets/icons/creature_pokku.jpg' },
+    { id: 'shell', name: '등껍질', type: 'object', image: '/assets/icons/object_shell.jpg' },
+    { id: 'icicle', name: '고드름', type: 'object', image: '/assets/icons/object_icicle.png' },
+    { id: 'water_cannon', name: '물대포', type: 'object', image: '/assets/icons/object_water_cannon.png' },
+    { id: 'thunder', name: '우르르쾅쾅', type: 'effect', image: '/assets/icons/effect_thunder.png' },
+    { id: 'chill', name: '으슬으슬', type: 'effect', image: '/assets/icons/effect_chill.png' },
+    { id: 'splash', name: '펑펑', type: 'effect', image: '/assets/icons/effect_splash.png' },
+  ],
   weapons: [],
   hints: [],
-  currentMiniGame: null
+  currentMiniGame: null,
+  // 워크샵 상태 추가
+  selectedMaterial: null,
+  craftingSlots: [null, null, null],
+  lastRejectedSlot: null,
+  showToast: false,
+  toastMessage: '',
+  isShaking: false
 };
 
 const useGame = () => {
@@ -121,13 +140,110 @@ const useGame = () => {
     // TODO: 올바른 재료 조합인지 확인하고 결과 반환
   }, []);
 
+  // 워크샵 관련 함수들
+  const selectMaterial = useCallback((materialId: string) => {
+    setGameState(prev => ({
+      ...prev,
+      selectedMaterial: materialId
+    }));
+  }, []);
+
+  const placeOnSlot = useCallback((slot: SlotIndex) => {
+    setGameState(prev => {
+      if (!prev.selectedMaterial) return prev;
+      
+      const want: SlotKind = slot === 0 ? 'creature' : slot === 1 ? 'object' : 'effect';
+      const mat = MATERIALS_MAP[prev.selectedMaterial as keyof typeof MATERIALS_MAP];
+      
+      if (!mat || mat.kind !== want) {
+        // 카테고리 불일치 - 거부 피드백
+        return {
+          ...prev,
+          lastRejectedSlot: slot,
+          showToast: true,
+          toastMessage: '잘못된 카테고리입니다!',
+          isShaking: true
+        };
+      }
+      
+      const next = [...prev.craftingSlots];
+      next[slot] = prev.selectedMaterial;
+      
+      return {
+        ...prev,
+        craftingSlots: next,
+        selectedMaterial: null,
+        lastRejectedSlot: null
+      };
+    });
+  }, []);
+
+  const clearSlots = useCallback(() => {
+    setGameState(prev => ({
+      ...prev,
+      craftingSlots: [null, null, null],
+      selectedMaterial: null
+    }));
+  }, []);
+
+  const handleCraft = useCallback(() => {
+    setGameState(prev => {
+      const { matchRecipe } = require('../data/recipes');
+      const result = matchRecipe(prev.craftingSlots[0], prev.craftingSlots[1], prev.craftingSlots[2]);
+      
+      if (result) {
+        // 성공: 결과 카드 표출 + 슬롯 초기화 (재료 미차감)
+        const newWeapon = {
+          id: result,
+          name: result.replace(/_/g, ' '),
+          requiredIngredients: prev.craftingSlots.filter(Boolean) as string[],
+          image: `/assets/weapons/${result}.png`
+        };
+        
+        return {
+          ...prev,
+          weapons: [...prev.weapons, newWeapon],
+          craftingSlots: [null, null, null],
+          selectedMaterial: null,
+          showToast: true,
+          toastMessage: '제작 성공!',
+          isShaking: false
+        };
+      } else {
+        // 실패: 슬롯 유지 + 토스트/흔들림
+        return {
+          ...prev,
+          showToast: true,
+          toastMessage: '실패! 다시 조합해 보자',
+          isShaking: true
+        };
+      }
+    });
+  }, []);
+
+  const clearToast = useCallback(() => {
+    setGameState(prev => ({
+      ...prev,
+      showToast: false,
+      toastMessage: '',
+      isShaking: false,
+      lastRejectedSlot: null
+    }));
+  }, []);
+
   return {
     gameState,
     startMiniGame,
     completeMiniGame,
     switchPhase,
     addIngredient,
-    craftWeapon
+    craftWeapon,
+    // 워크샵 함수들
+    selectMaterial,
+    placeOnSlot,
+    clearSlots,
+    handleCraft,
+    clearToast
   };
 };
 

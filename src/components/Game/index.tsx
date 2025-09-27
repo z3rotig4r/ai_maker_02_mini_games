@@ -13,7 +13,11 @@ const Game: React.FC = () => {
     startMiniGame,
     completeMiniGame,
     switchPhase,
-    craftWeapon
+    craftWeapon,
+    selectMaterial,
+    placeOnSlot,
+    handleCraft,
+    clearToast
   } = useGame();
 
   // 현재 게임 참조를 메모이제이션
@@ -71,6 +75,10 @@ const Game: React.FC = () => {
       <Workshop 
         gameState={gameState}
         onCraftWeapon={craftWeapon}
+        selectMaterial={selectMaterial}
+        placeOnSlot={placeOnSlot}
+        handleCraft={handleCraft}
+        clearToast={clearToast}
       />
     </div>
   );

@@ -1,16 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './Workshop.css';
-import { GameState, Ingredient, Weapon } from '../../types';
+import { GameState, Ingredient } from '../../types';
 import { MATERIALS_MAP } from '../../data/materials';
 import { getMaterialIcon } from '../../utils/iconUtils';
 
 interface WorkshopProps {
   gameState: GameState;
   onCraftWeapon: (ingredients: Ingredient[]) => void;
+  selectMaterial: (materialId: string) => void;
+  placeOnSlot: (slot: number) => void;
+  handleCraft: () => void;
+  clearToast: () => void;
 }
 
-const Workshop: React.FC<WorkshopProps> = ({ gameState, onCraftWeapon }) => {
-  const { inventory, weapons, hints } = gameState;
+const Workshop: React.FC<WorkshopProps> = ({ 
+  gameState, 
+  onCraftWeapon, 
+  selectMaterial, 
+  placeOnSlot, 
+  handleCraft, 
+  clearToast 
+}) => {
+  const { inventory, weapons, hints, selectedMaterial, craftingSlots, showToast, toastMessage, isShaking, lastRejectedSlot } = gameState;
 
   // 보유한 재료들을 종류별로 분류
   const categorizedIngredients = {
@@ -18,6 +29,16 @@ const Workshop: React.FC<WorkshopProps> = ({ gameState, onCraftWeapon }) => {
     object: inventory.filter(item => item.type === 'object'),
     effect: inventory.filter(item => item.type === 'effect'),
   };
+
+  // 토스트 자동 제거
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => {
+        clearToast();
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showToast, clearToast]);
 
   return (
     <div className="workshop">
@@ -46,7 +67,11 @@ const Workshop: React.FC<WorkshopProps> = ({ gameState, onCraftWeapon }) => {
               <h4>생물</h4>
               <div className="ingredients-grid">
                 {categorizedIngredients.creature.map(ingredient => (
-                  <div key={ingredient.id} className="ingredient-item">
+                  <div 
+                    key={ingredient.id} 
+                    className={`ingredient-item ${selectedMaterial === ingredient.id ? 'selected' : ''}`}
+                    onClick={() => selectMaterial(ingredient.id)}
+                  >
                     <img src={getMaterialIcon(ingredient.id as keyof typeof MATERIALS_MAP)} alt={ingredient.name} />
                     <span>{ingredient.name}</span>
                   </div>
@@ -57,7 +82,11 @@ const Workshop: React.FC<WorkshopProps> = ({ gameState, onCraftWeapon }) => {
               <h4>물건</h4>
               <div className="ingredients-grid">
                 {categorizedIngredients.object.map(ingredient => (
-                  <div key={ingredient.id} className="ingredient-item">
+                  <div 
+                    key={ingredient.id} 
+                    className={`ingredient-item ${selectedMaterial === ingredient.id ? 'selected' : ''}`}
+                    onClick={() => selectMaterial(ingredient.id)}
+                  >
                     <img src={getMaterialIcon(ingredient.id as keyof typeof MATERIALS_MAP)} alt={ingredient.name} />
                     <span>{ingredient.name}</span>
                   </div>
@@ -68,7 +97,11 @@ const Workshop: React.FC<WorkshopProps> = ({ gameState, onCraftWeapon }) => {
               <h4>효과</h4>
               <div className="ingredients-grid">
                 {categorizedIngredients.effect.map(ingredient => (
-                  <div key={ingredient.id} className="ingredient-item">
+                  <div 
+                    key={ingredient.id} 
+                    className={`ingredient-item ${selectedMaterial === ingredient.id ? 'selected' : ''}`}
+                    onClick={() => selectMaterial(ingredient.id)}
+                  >
                     <img src={getMaterialIcon(ingredient.id as keyof typeof MATERIALS_MAP)} alt={ingredient.name} />
                     <span>{ingredient.name}</span>
                   </div>
@@ -82,14 +115,24 @@ const Workshop: React.FC<WorkshopProps> = ({ gameState, onCraftWeapon }) => {
           <h3>무기 제작</h3>
           <div className="crafting-table">
             <div className="crafting-slots">
-              {/* TODO: 재료를 드래그 앤 드롭으로 배치할 수 있는 슬롯 추가 */}
               {Array(3).fill(null).map((_, index) => (
-                <div key={index} className="crafting-slot">
-                  <span>+</span>
+                <div 
+                  key={index} 
+                  className={`crafting-slot ${lastRejectedSlot === index ? 'rejected' : ''} ${isShaking ? 'shaking' : ''}`}
+                  onClick={() => placeOnSlot(index)}
+                >
+                  {craftingSlots[index] ? (
+                    <img 
+                      src={getMaterialIcon(craftingSlots[index] as keyof typeof MATERIALS_MAP)} 
+                      alt={MATERIALS_MAP[craftingSlots[index] as keyof typeof MATERIALS_MAP]?.name || ''} 
+                    />
+                  ) : (
+                    <span>+</span>
+                  )}
                 </div>
               ))}
             </div>
-            <button className="craft-button">
+            <button className="craft-button" onClick={handleCraft}>
               제작하기
             </button>
           </div>
@@ -107,6 +150,13 @@ const Workshop: React.FC<WorkshopProps> = ({ gameState, onCraftWeapon }) => {
           </div>
         </div>
       </div>
+      
+      {/* 토스트 메시지 */}
+      {showToast && (
+        <div className={`toast ${isShaking ? 'shaking' : ''}`}>
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 };

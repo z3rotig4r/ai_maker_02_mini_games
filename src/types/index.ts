@@ -46,4 +46,11 @@ export interface GameState {
   weapons: Weapon[];
   hints: string[];
   currentMiniGame: string | null;
+  // 워크샵 상태
+  selectedMaterial: string | null;
+  craftingSlots: (string | null)[];
+  lastRejectedSlot: number | null;
+  showToast: boolean;
+  toastMessage: string;
+  isShaking: boolean;
 }
