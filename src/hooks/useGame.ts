@@ -139,6 +139,7 @@ const useGame = () => {
 
   // 워크샵 관련 함수들
   const selectMaterial = useCallback((materialId: string) => {
+    console.log('[selectMaterial] materialId:', materialId);
     setGameState(prev => ({
       ...prev,
       selectedMaterial: materialId
@@ -147,13 +148,21 @@ const useGame = () => {
 
   const placeOnSlot = useCallback((slot: SlotIndex) => {
     setGameState(prev => {
-      if (!prev.selectedMaterial) return prev;
+      console.log('[placeOnSlot] slot:', slot, 'selectedMaterial:', prev.selectedMaterial);
+      
+      if (!prev.selectedMaterial) {
+        console.log('[placeOnSlot] No selected material');
+        return prev;
+      }
       
       const want: SlotKind = slot === 0 ? 'creature' : slot === 1 ? 'object' : 'effect';
       const mat = MATERIALS_MAP[prev.selectedMaterial as keyof typeof MATERIALS_MAP];
       
+      console.log('[placeOnSlot] want:', want, 'mat:', mat);
+      
       if (!mat || mat.kind !== want) {
         // 카테고리 불일치 - 거부 피드백
+        console.log('[placeOnSlot] Category mismatch - rejecting');
         return {
           ...prev,
           lastRejectedSlot: slot,
@@ -165,6 +174,8 @@ const useGame = () => {
       
       const next = [...prev.craftingSlots];
       next[slot] = prev.selectedMaterial;
+      
+      console.log('[placeOnSlot] Success - placing material:', prev.selectedMaterial, 'in slot:', slot);
       
       return {
         ...prev,
