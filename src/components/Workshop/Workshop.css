@@ -198,50 +198,6 @@
   margin-bottom: 20px;
 }
 
-.effect-chips h4 {
-  color: var(--ink);
-  margin-bottom: 15px;
-  font-size: 1.2em;
-  font-family: 'Press Start 2P', monospace;
-}
-
-.chips-container {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-/* 세그먼트 토글 스타일 오버라이드 */
-.effect-chips .segment {
-  margin: 0 auto;
-}
-
-.effect-chip {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  padding: 12px 16px;
-  background-color: #f8f9fa;
-  border: 2px solid #dee2e6;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 80px;
-}
-
-.effect-chip:hover {
-  background-color: #e9ecef;
-  border-color: #e63946;
-  transform: translateY(-2px);
-}
-
-.effect-chip.selected {
-  background-color: #ffe0e0;
-  border-color: #e63946;
-  box-shadow: 0 2px 8px rgba(230, 57, 70, 0.3);
-}
 
 /* 실패 플래시 효과 */
 .flash-red {

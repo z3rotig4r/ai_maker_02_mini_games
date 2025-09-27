@@ -3,7 +3,6 @@ import './Workshop.css';
 import '../../styles/theme.css';
 import { GameState, SlotIndex, WeaponId } from '../../types';
 import { MATERIALS_MAP } from '../../data/materials';
-import { getMaterialIcon } from '../../utils/iconUtils';
 import CraftingAltar from '../CraftingAltar';
 import HintPanel from '../HintPanel';
 import MarioBackdrop from '../MarioBackdrop';
@@ -103,7 +102,7 @@ const Workshop: React.FC<WorkshopProps> = ({
                     role="button"
                     aria-label={`${ingredient.name} 선택`}
                   >
-                    <img src={getMaterialIcon(ingredient.id as keyof typeof MATERIALS_MAP)} alt={ingredient.name} width="48" height="48" />
+                    <img src={ingredient.image} alt={ingredient.name} width="48" height="48" />
                   </div>
                 ))}
               </div>
@@ -120,7 +119,7 @@ const Workshop: React.FC<WorkshopProps> = ({
                     role="button"
                     aria-label={`${ingredient.name} 선택`}
                   >
-                    <img src={getMaterialIcon(ingredient.id as keyof typeof MATERIALS_MAP)} alt={ingredient.name} width="48" height="48" />
+                    <img src={ingredient.image} alt={ingredient.name} width="48" height="48" />
                   </div>
                 ))}
               </div>
@@ -137,7 +136,7 @@ const Workshop: React.FC<WorkshopProps> = ({
                     role="button"
                     aria-label={`${ingredient.name} 선택`}
                   >
-                    <img src={getMaterialIcon(ingredient.id as keyof typeof MATERIALS_MAP)} alt={ingredient.name} width="48" height="48" />
+                    <img src={ingredient.image} alt={ingredient.name} width="48" height="48" />
                   </div>
                 ))}
               </div>
@@ -164,33 +163,6 @@ const Workshop: React.FC<WorkshopProps> = ({
             />
           </div>
 
-          {/* 효과 빠른 선택 세그먼트 */}
-          <div className="effect-chips">
-            <h4>효과 빠른 선택</h4>
-            <div className="segment">
-              {[
-                { id: 'thunder', emoji: '⚡', name: '우르르쾅쾅' },
-                { id: 'chill', emoji: '❄️', name: '으슬으슬' },
-                { id: 'splash', emoji: '💦', name: '펑펑' }
-              ].map((effect) => (
-                <button
-                  key={effect.id}
-                  aria-pressed={selectedMaterial === effect.id}
-                  onClick={() => {
-                    console.log('[chip]', effect.id);
-                    selectMaterial(effect.id);
-                    // 자동으로 3번 슬롯에 배치
-                    setTimeout(() => placeOnSlot(2), 100);
-                  }}
-                  title={effect.name}
-                  className="focus-ring"
-                >
-                  <span className="chip-emoji">{effect.emoji}</span>
-                  <span className="chip-name">{effect.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
 
           <div className="crafting-controls">
             <button className="btn-mario" onClick={handleCraft}>
