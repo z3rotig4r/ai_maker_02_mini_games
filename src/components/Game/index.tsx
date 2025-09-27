@@ -13,7 +13,6 @@ const Game: React.FC = () => {
     startMiniGame,
     completeMiniGame,
     switchPhase,
-    craftWeapon,
     selectMaterial,
     placeOnSlot,
     handleCraft,

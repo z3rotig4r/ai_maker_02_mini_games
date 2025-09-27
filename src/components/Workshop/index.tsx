@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import './Workshop.css';
-import { GameState, Ingredient, SlotIndex } from '../../types';
+import { GameState, SlotIndex } from '../../types';
 import { MATERIALS_MAP } from '../../data/materials';
 import { getMaterialIcon } from '../../utils/iconUtils';
 
@@ -117,7 +117,7 @@ const Workshop: React.FC<WorkshopProps> = ({
                 <div 
                   key={index} 
                   className={`crafting-slot ${lastRejectedSlot === index ? 'rejected' : ''} ${isShaking ? 'shaking' : ''}`}
-                  onClick={() => placeOnSlot(index)}
+                  onClick={() => placeOnSlot(index as SlotIndex)}
                 >
                   {craftingSlots[index] ? (
                     <img 

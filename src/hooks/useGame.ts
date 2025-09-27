@@ -136,10 +136,6 @@ const useGame = () => {
     }));
   }, []);
 
-  const craftWeapon = useCallback(() => {
-    // 무기 제작 로직 구현
-    // TODO: 올바른 재료 조합인지 확인하고 결과 반환
-  }, []);
 
   // 워크샵 관련 함수들
   const selectMaterial = useCallback((materialId: string) => {
@@ -237,7 +233,6 @@ const useGame = () => {
     completeMiniGame,
     switchPhase,
     addIngredient,
-    craftWeapon,
     // 워크샵 함수들
     selectMaterial,
     placeOnSlot,
