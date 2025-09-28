@@ -2,9 +2,13 @@
   width: 800px;
   height: 600px;
   margin: 0 auto;
-  background: linear-gradient(to bottom, #87CEEB, #98FB98);
+  background: transparent;
   position: relative;
   overflow: hidden;
+  /* 스크롤 방지 */
+  overscroll-behavior: contain;
+  touch-action: none;
+  user-select: none;
 }
 
 .start-screen {
@@ -44,8 +48,127 @@
   align-items: flex-end;
   font-size: 24px;
   color: white;
-  text-shadow: 2px 2px #333;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.35);
   z-index: 10;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* 난이도 게이지 및 시간 표시 */
+.difficulty-hud {
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.difficulty-gauge-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 2px solid #fff;
+}
+
+.gauge-label {
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 1px 1px #333;
+  min-width: 40px;
+}
+
+.gauge-background {
+  width: 120px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #fff;
+}
+
+.gauge-fill {
+  height: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  border-radius: 10px;
+}
+
+.gauge-text {
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 1px 1px #333;
+  min-width: 35px;
+  text-align: center;
+}
+
+.time-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 2px solid #fff;
+}
+
+.time-label {
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 1px 1px #333;
+}
+
+.time-value {
+  color: #ffeb3b;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 1px 1px #333;
+  font-family: 'Courier New', monospace;
+}
+
+.bomb-limit-warning {
+  background: rgba(220, 53, 69, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 1px 1px #333;
+  animation: shake 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes shake {
+  0% { transform: translateX(-2px); }
+  100% { transform: translateX(2px); }
+}
+
+/* 티어 디스플레이 스타일 */
+.tier-display {
+  margin: 15px 0;
+  text-align: center;
+}
+
+.tier-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffeb3b;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  margin: 10px 0;
+}
+
+.tier-message {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.4;
+  margin: 10px 0;
 }
 
 .score {
@@ -86,6 +209,11 @@
   width: 100%;
   height: 100%;
   position: relative;
+  z-index: 1; /* 배경 위에 표시 */
+  /* 추가 스크롤 방지 */
+  overscroll-behavior: contain;
+  touch-action: none;
+  user-select: none;
 }
 
 .yoshi {
@@ -99,35 +227,166 @@
   transform-origin: center bottom;
 }
 
-.item {
+/* 엔티티 컨테이너 - 흰 배경 완전 제거 */
+.entity {
   position: absolute;
-  width: 40px;
-  height: 40px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  image-rendering: pixelated;
-  outline: none;
-  border: none;
-  transform-origin: center;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
-.item.fruit {
-  background-image: url('./assets/fruit.png');
-  filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.3));
-  mix-blend-mode: multiply;
-  box-shadow: none;
-  width: 45px;
-  height: 45px;
+.entity * {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
-.item.bomb {
-  background-image: url('./assets/bomb.png');
+/* 스프라이트 이미지 - 순수 이미지만 표시 */
+.sprite {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  display: block;
+  /* 카드 그림자 대신 알파를 따라가는 그림자만 */
+  filter: drop-shadow(0 3px 0 rgba(0,0,0,.25));
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* 힌트 버블 */
+.hint-bubble {
+  position: absolute;
+  top: 16px;
+  right: 180px;
+  z-index: 5;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  backdrop-filter: saturate(120%) blur(2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  animation: fadeInOut 5s ease-in-out;
+  pointer-events: none;
+  white-space: nowrap;
+  line-height: 1.2;
+  text-align: center;
+}
+
+@keyframes fadeInOut {
+  0% { 
+    opacity: 0; 
+    transform: translateY(-10px) scale(0.9);
+  }
+  10% { 
+    opacity: 1; 
+    transform: translateY(0) scale(1);
+  }
+  90% { 
+    opacity: 1; 
+    transform: translateY(0) scale(1);
+  }
+  100% { 
+    opacity: 0; 
+    transform: translateY(-10px) scale(0.9);
+  }
+}
+
+
+/* 파워업 HUD */
+.powerup-hud {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+}
+
+.powerup-chip {
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 1px 1px #333;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(4px);
+}
+
+.powerup-icon {
+  font-size: 16px;
+}
+
+.powerup-name {
+  min-width: 40px;
+}
+
+.powerup-timer {
+  color: #ffeb3b;
+  font-family: 'Courier New', monospace;
+  min-width: 25px;
+  text-align: center;
+}
+
+/* 파워업 아이템 */
+.powerup-item {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  border: 3px solid #ffeb3b;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  animation: powerup-glow 1s ease-in-out infinite alternate;
+}
+
+.powerup-icon-large {
+  font-size: 28px;
   filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.3));
-  mix-blend-mode: multiply;
-  box-shadow: none;
-  width: 45px;
-  height: 45px;
+}
+
+@keyframes powerup-glow {
+  0% { 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 235, 59, 0.5);
+  }
+  100% { 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 235, 59, 0.8);
+  }
+}
+
+/* 고정 배경 레이어 */
+.bg-pan {
+  position: absolute;
+  inset: 0;
+  background: url('./assets/yoshi_backround.png') center bottom / cover no-repeat;
+  pointer-events: none;
+  z-index: 0;
+  transform: none !important;
+  animation: none !important;
+  will-change: auto;
+}
+
+/* 디버그용 히트박스 스타일 */
+.hitbox-debug {
+  position: absolute;
+  border: 2px solid #22c55e;
+  background: transparent;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 1000;
 }
 
 .yoshi {

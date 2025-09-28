@@ -73,7 +73,7 @@ function LuckyBoxModel({
 
   // 슬롯 위치 (모델 높이에 맞게 조정)
   const slotPositions: [number, number, number][] = [
-    [-0.6, 0.9, 0], // 왼쪽 슬롯
+    [-0.6, 0.7, 0], // 왼쪽 슬롯 (boo shell mace를 위해 한 칸 내림)
     [0, 0.9, 0],    // 중앙 슬롯
     [0.6, 0.9, 0]   // 오른쪽 슬롯
   ];

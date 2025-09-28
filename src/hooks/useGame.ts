@@ -42,9 +42,9 @@ const initialState: GameState = {
   ],
   inventory: [
     // 테스트용 재료 추가
-    { id: 'boo', name: '고스트', type: 'creature', image: '/assets/icons/creature_boo.jpg' },
+    { id: 'boo', name: '부끄부끄', type: 'creature', image: '/assets/icons/creature_boo.jpg' },
     { id: 'goomba', name: '굼바', type: 'creature', image: '/assets/icons/creature_goomba.jpg' },
-    { id: 'pokku', name: '뽀꾸미', type: 'creature', image: '/assets/icons/creature_pokku.jpg' },
+    { id: 'pokku', name: '뽀꾸뽀꾸', type: 'creature', image: '/assets/icons/creature_pokku.jpg' },
     { id: 'shell', name: '등껍질', type: 'object', image: '/assets/icons/object_shell.jpg' },
     { id: 'icicle', name: '고드름', type: 'object', image: '/assets/icons/object_icicle.png' },
     { id: 'water_cannon', name: '물대포', type: 'object', image: '/assets/icons/object_water_cannon.png' },
@@ -110,8 +110,8 @@ const useGame = () => {
           ? { 
               ...g, 
               completed: true, 
-              hint,
-              difficulty: g.completed ? g.difficulty + 1 : g.difficulty 
+              hint
+              // 난이도 증가 제거: 클리어 후에도 난이도 유지
             }
           : g
       );

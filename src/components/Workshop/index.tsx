@@ -6,6 +6,7 @@ import { MATERIALS_MAP } from '../../data/materials';
 import CraftingAltar from '../CraftingAltar';
 import HintPanel from '../HintPanel';
 import MarioBackdrop from '../MarioBackdrop';
+import { initWorkshopAudio, startWorkshopBgm, stopWorkshopBgm, playWorkshop, duckBgm, ensureAudioUnlocked, syncMute } from './audioWorkshop';
 
 interface WorkshopProps {
   gameState: GameState;
@@ -26,11 +27,60 @@ const Workshop: React.FC<WorkshopProps> = ({
   const [failFlash, setFailFlash] = useState(false);
   const [result, setResult] = useState<WeaponId | null>(null);
 
+  // Workshop 오디오 초기화 및 BGM 관리
+  useEffect(() => {
+    let isMounted = true;
+    
+    const initializeAudio = async () => {
+      try {
+        console.log('🔧 Workshop 컴포넌트 오디오 초기화 시작');
+        await initWorkshopAudio();
+        if (isMounted) {
+          console.log('🔧 Workshop BGM 시작 호출');
+          await startWorkshopBgm();
+          ensureAudioUnlocked(); // ★ 최초 진입에서 바로 언락 대기
+        } else {
+          console.log('🔧 컴포넌트가 언마운트되어 BGM 시작 건너뜀');
+        }
+      } catch (error) {
+        console.error('❌ Workshop 오디오 초기화 실패:', error);
+      }
+    };
+    
+    initializeAudio();
+    
+    // 컴포넌트 언마운트 시 BGM 정지
+    return () => {
+      console.log('🔧 Workshop 컴포넌트 언마운트 - BGM 정지');
+      isMounted = false;
+      stopWorkshopBgm();
+    };
+  }, []);
+
   // 보유한 재료들을 종류별로 분류
   const categorizedIngredients = {
     creature: inventory.filter(item => item.type === 'creature'),
     object: inventory.filter(item => item.type === 'object'),
     effect: inventory.filter(item => item.type === 'effect'),
+  };
+
+  // 재료 선택 핸들러 (SFX 포함)
+  const handleSelectMaterial = (materialId: string) => {
+    playWorkshop('select_place');
+    selectMaterial(materialId);
+  };
+
+  // 슬롯 배치 핸들러 (SFX 포함)
+  const handlePlaceOnSlot = (slot: SlotIndex) => {
+    playWorkshop('select_place');
+    placeOnSlot(slot);
+  };
+
+  // 제작 버튼 핸들러 (SFX + BGM ducking 포함)
+  const handleCraftPress = () => {
+    playWorkshop('craft_press');
+    duckBgm({ to: 0.045, holdMs: 900 }); // DUCK_LEVEL_PRESS
+    handleCraft();
   };
 
   // 토스트 자동 제거
@@ -43,18 +93,22 @@ const Workshop: React.FC<WorkshopProps> = ({
     }
   }, [showToast, clearToast]);
 
-  // 실패 플래시 효과
+  // 실패 플래시 효과 및 SFX + BGM ducking
   useEffect(() => {
     if (isShaking) {
+      playWorkshop('craft_fail');
+      duckBgm({ to: 0.063, holdMs: 1400 }); // DUCK_LEVEL_RESULT
       setFailFlash(true);
       const timer = setTimeout(() => setFailFlash(false), 200);
       return () => clearTimeout(timer);
     }
   }, [isShaking]);
 
-  // 성공 시 결과 카드 표시
+  // 성공 시 결과 카드 표시 및 SFX + BGM ducking
   useEffect(() => {
     if (successTick > 0 && crafted.length > 0) {
+      playWorkshop('craft_success');
+      duckBgm({ to: 0.063, holdMs: 1400 }); // DUCK_LEVEL_RESULT
       const latestWeapon = crafted[crafted.length - 1];
       setResult(latestWeapon);
       const timer = setTimeout(() => setResult(null), 3000);
@@ -97,7 +151,7 @@ const Workshop: React.FC<WorkshopProps> = ({
                   <div 
                     key={ingredient.id} 
                     className={`icon-ring creature ${selectedMaterial === ingredient.id ? 'selected' : ''} focus-ring`}
-                    onClick={() => selectMaterial(ingredient.id)}
+                    onClick={() => handleSelectMaterial(ingredient.id)}
                     tabIndex={0}
                     role="button"
                     aria-label={`${ingredient.name} 선택`}
@@ -114,7 +168,7 @@ const Workshop: React.FC<WorkshopProps> = ({
                   <div 
                     key={ingredient.id} 
                     className={`icon-ring object ${selectedMaterial === ingredient.id ? 'selected' : ''} focus-ring`}
-                    onClick={() => selectMaterial(ingredient.id)}
+                    onClick={() => handleSelectMaterial(ingredient.id)}
                     tabIndex={0}
                     role="button"
                     aria-label={`${ingredient.name} 선택`}
@@ -131,7 +185,7 @@ const Workshop: React.FC<WorkshopProps> = ({
                   <div 
                     key={ingredient.id} 
                     className={`icon-ring effect ${selectedMaterial === ingredient.id ? 'selected' : ''} focus-ring`}
-                    onClick={() => selectMaterial(ingredient.id)}
+                    onClick={() => handleSelectMaterial(ingredient.id)}
                     tabIndex={0}
                     role="button"
                     aria-label={`${ingredient.name} 선택`}
@@ -156,7 +210,7 @@ const Workshop: React.FC<WorkshopProps> = ({
             <CraftingAltar
               craftingSlots={craftingSlots}
               selectedMaterial={selectedMaterial}
-              onSlotClick={(slot) => placeOnSlot(slot as SlotIndex)}
+              onSlotClick={(slot) => handlePlaceOnSlot(slot as SlotIndex)}
               isShaking={isShaking}
               lastRejectedSlot={lastRejectedSlot}
               successTick={successTick}
@@ -165,7 +219,7 @@ const Workshop: React.FC<WorkshopProps> = ({
 
 
           <div className="crafting-controls">
-            <button className="btn-mario" onClick={handleCraft}>
+            <button className="btn-mario" onClick={handleCraftPress}>
               제작하기
             </button>
           </div>

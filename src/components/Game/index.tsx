@@ -54,17 +54,23 @@ const Game: React.FC = () => {
     <div className="phase-a">
       <h2>미니게임 선택</h2>
       <div className="mini-games-grid">
-        {gameState.miniGames.map(game => (
-          <div 
-            key={game.id}
-            className={`mini-game-card ${game.completed ? 'completed' : ''}`}
-            onClick={() => startMiniGame(game.id)}
-          >
-            <h3>{game.name}</h3>
-            <p>난이도: {'⭐'.repeat(game.difficulty)}</p>
-            {game.completed && <p className="hint">힌트: {game.hint}</p>}
-          </div>
-        ))}
+        {gameState.miniGames.map(game => {
+          const hasHint = game.completed && game.hint;
+          
+          return (
+            <div 
+              key={game.id}
+              className={`mini-game-card ${game.completed ? 'completed' : ''} ${hasHint ? 'hint-earned' : ''}`}
+              onClick={() => startMiniGame(game.id)}
+            >
+              <h3 className={hasHint ? 'hint-earned-title' : ''}>{game.name}</h3>
+              <p>난이도: {'⭐'.repeat(game.difficulty)}</p>
+              {hasHint && game.hint && (
+                <p className="hint hint-earned-text">힌트: {game.hint}</p>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

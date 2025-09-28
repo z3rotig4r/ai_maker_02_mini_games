@@ -38,3 +38,4 @@ const MarioBackdrop: React.FC<MarioBackdropProps> = ({ variant }) => {
 };
 
 export default MarioBackdrop;
+

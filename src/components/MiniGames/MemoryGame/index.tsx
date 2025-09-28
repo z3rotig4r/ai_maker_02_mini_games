@@ -112,7 +112,7 @@ const MemoryGame: React.FC<MemoryGameProps> = ({ difficulty, onComplete }) => {
     console.log('Initializing game...');
     const minPairs = 4;
     const maxPairs = 8;
-    Math.min(maxPairs * 2, Math.max(minPairs * 2, 8 + (difficulty - 1) * 4));
+    const cardCount = Math.min(maxPairs * 2, Math.max(minPairs * 2, 8 + (difficulty - 1) * 4));
     
     setIsShuffling(true); // 셔플 애니메이션 시작
     setCards([]); // 카드를 일시적으로 비움
@@ -222,7 +222,7 @@ const handleCardClick = useCallback((cardId: number) => {
   }, [isGameStarted, matchedPairs, cards.length, isGameCompleted]);
 
   const handleSuccessConfirm = useCallback(() => {
-    onComplete('두 번째 무기엔... 부끄부끄의 힘이 필요할 거야!');
+    onComplete('두 번째 무기엔... 부끄부끄의 힘이 필요해!');
     setShowSuccessModal(false);
   }, [onComplete]);
 

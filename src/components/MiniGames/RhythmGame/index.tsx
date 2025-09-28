@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './RhythmGame.css';
+import { startBgm, stopBgm, ensureAudioUnlocked, syncMute, cleanupRhythmAudio } from './audio';
 
 interface RhythmGameProps {
   difficulty: number;
@@ -46,7 +47,17 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
   const [hitParticles, setHitParticles] = useState<Array<{id: number, x: number, y: number, type: string}>>([]);
   const [screenEffects, setScreenEffects] = useState<Array<{id: number, type: string}>>([]);
   const [backgroundEffect, setBackgroundEffect] = useState<string>('normal');
-  const audioRef = useRef<HTMLAudioElement>(null);
+
+  // RhythmGame 오디오 초기화 및 정리
+  useEffect(() => {
+    // 마운트 시 오디오 언락 대기
+    ensureAudioUnlocked();
+    
+    // 컴포넌트 언마운트 시 오디오 정리
+    return () => {
+      cleanupRhythmAudio();
+    };
+  }, []);
 
   const generateNotes = useCallback(() => {
     // 마리오 노래의 BPM을 120으로 가정 (실제로는 분석이 필요)
@@ -99,11 +110,8 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
       setGameStarted(true);
       setGameStartTime(Date.now());
       
-      // 사운드 재생
-      if (audioRef.current) {
-        audioRef.current.currentTime = 0;
-        audioRef.current.play().catch(console.error);
-      }
+      // BGM 시작
+      startBgm();
     }, 100);
   };
 
@@ -136,6 +144,9 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
           setIsGameOver(true);
           setShowResults(true);
           
+          // BGM 정지
+          stopBgm();
+          
           // 고스트 메시지 표시
           setTimeout(() => {
             setShowGhostMessage(true);
@@ -149,12 +160,16 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
           // 60초 후에도 8000점 미달이면 실패
           setIsGameOver(true);
           setShowResults(true);
+          
+          // BGM 정지
+          stopBgm();
         } else {
           // 게임이 계속 진행 중이면 새로운 노트 생성
           if (updatedNotes.length < 5) { // 화면에 노트가 5개 미만이면 새로 생성
             const bpm = 120;
             const beatInterval = 60000 / bpm;
-            Math.max(0.7, 1 - (difficulty - 1) * 0.05);
+            const noteInterval = beatInterval;
+            const speedMultiplier = Math.max(0.7, 1 - (difficulty - 1) * 0.05);
             
             const position = Math.floor(Math.random() * 4);
             const newNote: Note = {
@@ -325,7 +340,6 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
 
   return (
     <div className={`rhythm-game ${backgroundEffect}`}>
-      <audio ref={audioRef} src="./sound/mario_bgm.mp3" preload="auto" />
       
       {!gameStarted ? (
         <div className="start-screen">

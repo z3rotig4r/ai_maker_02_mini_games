@@ -241,8 +241,8 @@ button {
 
 /* 슬롯 뱃지 - 흰색 원형 배경으로 통일 */
 .slot-badge {
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   border-radius: 999px;
   border: 3px solid var(--ink);
   object-fit: cover;
@@ -254,7 +254,7 @@ button {
 /* 모바일 대응 */
 @media (max-width: 768px) {
   .slot-badge {
-    width: 48px;
-    height: 48px;
+    width: 64px;
+    height: 64px;
   }
 }

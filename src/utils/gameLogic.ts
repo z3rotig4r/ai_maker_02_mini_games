@@ -3,9 +3,9 @@
 import { MiniGame, Ingredient, Weapon } from '../types';
 
 export const RECIPE_HINTS = {
-  weapon1: ['뽀꾸미가 필요해!', '불의 힘이 깃든...', '검의 형태로...'],
-  weapon2: ['부끄부끄의 힘!', '얼음의 보석과 함께...', '망치의 형태로...'],
-  weapon3: ['굼바의 등껍질!', '번개의 힘이...', '활의 모양으로...']
+  weapon1: ['뽀꾸뽀꾸의 힘이 필요해!', '물의 보석과 함께...', '캐논의 형태로...'],
+  weapon2: ['부끄부끄의 힘이 필요해!', '얼음의 보석과 함께...', '망치의 형태로...'],
+  weapon3: ['굼바의 힘이 필요해!', '번개의 힘이 깃든...', '해머의 형태로...']
 };
 
 export const checkRecipeMatch = (ingredients: Ingredient[], weaponId: string): boolean => {

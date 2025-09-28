@@ -1,9 +1,9 @@
 // src/data/materials.ts
 export const MATERIALS_MAP = {
   // creatures
-  boo:    { kind: 'creature', name: '고스트', icon: '/assets/icons/creature_boo.jpg' },
+  boo:    { kind: 'creature', name: '부끄부끄', icon: '/assets/icons/creature_boo.jpg' },
   goomba: { kind: 'creature', name: '굼바',   icon: '/assets/icons/creature_goomba.jpg' },
-  pokku:  { kind: 'creature', name: '뽀꾸미', icon: '/assets/icons/creature_pokku.jpg' },
+  pokku:  { kind: 'creature', name: '뽀꾸뽀꾸', icon: '/assets/icons/creature_pokku.jpg' },
 
   // objects
   shell:        { kind: 'object', name: '등껍질',    icon: '/assets/icons/object_shell.jpg' },

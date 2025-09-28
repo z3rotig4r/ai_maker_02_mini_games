@@ -5,24 +5,26 @@
   margin: 0 auto;
   position: relative;
   overflow: hidden;
+  /* 단일 배경 이미지로 통일 */
+  background: url('./assets/yoshi_backround_png.png') center bottom / cover no-repeat;
+  background-color: #8EC5E9; /* 폴백: 하늘색 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
 .game-area {
   width: 100%;
   height: 100%;
   position: relative;
-  background: linear-gradient(to bottom, #87CEEB, #87CEEB 70%, transparent 70%);
+  /* 모든 배경 제거 */
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
 }
 
+/* 가상 요소 배경도 제거 */
 .game-area::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 120px;
-  background: #90EE90;
-  z-index: -1;
+  display: none !important;
 }
 
 .score {
@@ -33,6 +35,10 @@
   color: #fff;
   text-shadow: 2px 2px #000;
   z-index: 1;
+  /* 배경 제거 */
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
 }
 
 .player {
@@ -107,6 +113,7 @@
   min-width: 300px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
   animation: fadeIn 0.3s ease-out;
+  z-index: 10; /* 게임 요소들 위에 표시 */
 }
 
 @keyframes fadeIn {
