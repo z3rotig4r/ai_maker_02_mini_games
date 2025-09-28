@@ -41,9 +41,12 @@ const Game: React.FC = () => {
     
     // 미니게임 선택화면에서만 BGM 재생
     if (gameState.currentPhase === 'A' && !gameState.currentMiniGame) {
-      if (audio && audio.paused) {
+      if (audio) {
         console.log('🎵 미니게임 선택 화면 - Game BGM 재생');
-        audio.play().catch(console.error);
+        audio.muted = false; // 음소거 해제
+        if (audio.paused) {
+          audio.play().catch(console.error);
+        }
       }
     }
     // 특정 미니게임에서만 BGM 재생 (버섯왕국달리기, 부끄부끄 기억력 테스트)
@@ -52,14 +55,20 @@ const Game: React.FC = () => {
       const shouldPlayBgm = currentGame && (currentGame.type === 'running' || currentGame.type === 'memory');
       
       if (shouldPlayBgm) {
-        if (audio && audio.paused) {
+        if (audio) {
           console.log(`🎵 ${currentGame.name} - Game BGM 재생`);
-          audio.play().catch(console.error);
+          audio.muted = false; // 음소거 해제
+          if (audio.paused) {
+            audio.play().catch(console.error);
+          }
         }
       } else {
-        if (audio && !audio.paused) {
-          console.log(`🎮 ${currentGame?.name || '게임'} - Game BGM 정지 (자체 BGM 사용 또는 BGM 없음)`);
+        // 쿵쿵이 잡기, 요시 게임에서는 메인 BGM 완전 정지
+        if (audio) {
+          console.log(`🎮 ${currentGame?.name || '게임'} - Game BGM 완전 정지`);
           audio.pause();
+          audio.currentTime = 0; // 재생 위치 초기화
+          audio.muted = true; // 음소거 설정
           setIsPlaying(false);
         }
       }
