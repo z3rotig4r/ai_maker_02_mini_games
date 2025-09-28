@@ -7,6 +7,20 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #f0f0f0;
+  width: 100vw;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#root {
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 code {

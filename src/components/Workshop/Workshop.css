@@ -1,12 +1,15 @@
 .workshop {
-  padding: 20px;
+  padding: 20px 40px;
   background-color: transparent;
   border-radius: 10px;
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+  min-height: 100vh;
+  margin: 0;
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 .workshop-header {
@@ -29,14 +32,19 @@
 .workshop-content {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
+  gap: 30px;
+  flex: 1;
+  align-content: start;
+  padding-bottom: 100px; /* 하단 버튼 공간 확보 */
 }
 
 .hints-section {
   background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  margin: 0 auto 30px;
 }
 
 .hints-list {
@@ -64,15 +72,19 @@
 
 .inventory-section {
   background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .inventory-categories {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* 기존 스타일 제거됨 - 위에서 재정의됨 */

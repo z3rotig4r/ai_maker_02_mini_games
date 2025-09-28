@@ -490,7 +490,7 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
               <h2>게임 종료!</h2>
               <p>최종 점수: {score}</p>
               {score >= 8000 ? (
-                <p>훌륭해요! 힌트를 획득했습니다!</p>
+                <p>8000점 달성! 게임 완료!</p>
               ) : (
                 <p>8000점 이상을 획득해보세요!</p>
               )}

@@ -1,13 +1,20 @@
 .App {
   text-align: center;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
 }
 
 .App h1 {
   color: #e52521;
   font-size: 2.5em;
-  margin-bottom: 30px;
+  margin: 20px 0 30px;
+  padding: 0 20px;
   text-shadow: 2px 2px #ffd700;
+  position: relative;
+  z-index: 10;
 }

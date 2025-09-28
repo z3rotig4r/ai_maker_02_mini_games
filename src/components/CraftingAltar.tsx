@@ -215,10 +215,10 @@ const CraftingAltar: React.FC<CraftingAltarProps> = (props) => {
   }, []);
 
   return (
-    <div style={{ height: '380px', width: '100%', position: 'relative' }}>
+    <div style={{ height: '450px', width: '100%', position: 'relative', maxWidth: '800px', margin: '0 auto' }}>
       <Canvas
         camera={{ position: [0, 1, 3], fov: 50 }}
-        style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '15px' }}
       >
         <ambientLight intensity={0.6} />
         <directionalLight position={[10, 10, 5]} intensity={1} />

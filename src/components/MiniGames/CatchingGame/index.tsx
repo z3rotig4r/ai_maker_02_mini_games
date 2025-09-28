@@ -597,7 +597,6 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
               <div className="game-over-modal">
                 <div className="success-message">
                   <h2>미션 완료!</h2>
-                  <p>축하합니다! 힌트를 획득했습니다.</p>
                   
                   {(() => {
                     const tier = getScoreTier(score);
@@ -610,10 +609,6 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
                         <div className="tier-display">
                           <h3 className="tier-title">{tier.title}</h3>
                           <p className="tier-message">{tier.msg}</p>
-                        </div>
-                        <div className="hint-box">
-                          <p className="hint-title">힌트</p>
-                          <p className="hint-text">마지막 무기의 재료는... 물의 보석과 뽀꾸뽀꾸를 조합하면 돼!</p>
                         </div>
                         <button className="success-button" onClick={handleReturnToMain}>
                           {tier.cta}

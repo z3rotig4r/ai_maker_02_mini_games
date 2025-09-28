@@ -22,9 +22,43 @@
   border: 0 !important;
 }
 
-/* 가상 요소 배경도 제거 */
+/* 지면/땅 UI 요소 */
 .game-area::after {
-  display: none !important;
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 45px; /* GROUND_Y 값과 일치 */
+  background: linear-gradient(to bottom, 
+    #8B4513 0%,     /* 갈색 흙 색상 */
+    #654321 30%,    /* 더 어두운 갈색 */
+    #4A2C17 70%,    /* 더욱 어두운 갈색 */
+    #2F1B0C 100%    /* 가장 어두운 갈색 */
+  );
+  border-top: 3px solid #228B22; /* 잔디 효과 */
+  box-shadow: 
+    inset 0 3px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.3);
+  z-index: 0; /* 캐릭터와 오브젝트 뒤에 배치 */
+}
+
+/* 잔디 텍스처 효과 */
+.game-area::before {
+  content: '';
+  position: absolute;
+  bottom: 42px; /* 지면 바로 위에 */
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    #228B22 0px,
+    #32CD32 2px,
+    #228B22 4px,
+    #006400 6px
+  );
+  z-index: 1;
 }
 
 .score {
@@ -47,7 +81,7 @@
   background: url('./assets/mario.png') no-repeat;
   background-size: contain;
   position: absolute;
-  bottom: 45px; /* 약간 위로 조정 */
+  /* bottom 값은 JavaScript에서 동적으로 설정됨 */
   transform-origin: bottom center;
   z-index: 2;
   will-change: transform;
@@ -75,7 +109,7 @@
   background: url('./assets/goomba.png') no-repeat;
   background-size: contain;
   position: absolute;
-  bottom: 45px; /* 마리오와 동일한 높이로 조정 */
+  /* bottom 값은 JavaScript에서 동적으로 설정됨 (마리오와 동일한 높이) */
   z-index: 1;
   will-change: transform;
 }
@@ -105,7 +139,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(255, 255, 255, 0.978);
   padding: 30px;
   border-radius: 15px;
   text-align: center;
