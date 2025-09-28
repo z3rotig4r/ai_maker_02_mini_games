@@ -163,16 +163,6 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
           
           // BGM 정지
           stopBgm();
-          
-          // 8000점 미만이면 히든 조건 완료 메시지와 함께 힌트 제공
-          setTimeout(() => {
-            setShowGhostMessage(true);
-          }, 1000);
-          
-          setTimeout(() => {
-            setShowGhostMessage(false);
-            onComplete('히든 조건완료! 끝까지 게임을 플레이 하셨기에 힌트가 제공됩니다');
-          }, 3000);
         } else {
           // 게임이 계속 진행 중이면 새로운 노트 생성
           if (updatedNotes.length < 5) { // 화면에 노트가 5개 미만이면 새로 생성
@@ -353,9 +343,8 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
       
       {!gameStarted ? (
         <div className="start-screen">
-          <h2>쿵쿵이 잡기</h2>
-          <p>무지개 다리를 건넌 쿵쿵이가 더 지나오지 못하게 해주세요!</p>
-          <p>D, F, J, K를 이용해 무지개 다리를 쿵쿵이가 넘은 시점을 노리세요!</p>
+          <h2>쿵쿵의 리듬 블록</h2>
+          <p>D, F, J, K 키를 사용하여 타이밍에 맞춰 노트를 누르세요!</p>
           <button onClick={startGame}>게임 시작</button>
         </div>
       ) : (
@@ -369,9 +358,7 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
             <div className="lanes">
               {[0, 1, 2, 3].map(lane => (
                 <div key={lane} className="lane">
-                  <div className="perfect-zone perfect-zone-top" />
                   <div className="hit-line" />
-                  <div className="perfect-zone perfect-zone-bottom" />
                   {notes
                     .filter(note => note.position === lane && Date.now() >= note.time - 2000)
                     .map(note => {
@@ -494,17 +481,7 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
                   <span>{gameStats.score}</span>
                 </div>
               </div>
-              {gameStats.score >= 8000 ? (
-                <div className="clear-message">
-                  <p>🎉 클리어했습니다!!!</p>
-                  <p>기다리면 자동으로 메인화면으로 이동됩니다!</p>
-                </div>
-              ) : (
-                <div className="retry-message">
-                  <p>8000점 이상을 획득해보세요!</p>
-                  <p>기다리면 자동으로 메인화면으로 이동됩니다!</p>
-                </div>
-              )}
+              <button onClick={startGame}>다시 시작</button>
             </div>
           )}
 
@@ -513,11 +490,11 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
               <h2>게임 종료!</h2>
               <p>최종 점수: {score}</p>
               {score >= 8000 ? (
-                <p>게임성공!!</p>
+                <p>8000점 달성! 게임 완료!</p>
               ) : (
-                <p>한번 더 도전해봐요!!</p>
+                <p>8000점 이상을 획득해보세요!</p>
               )}
-              <p>기다리면 자동으로 메인화면으로 이동됩니다!</p>
+              <button onClick={startGame}>다시 시작</button>
             </div>
           )}
         </>

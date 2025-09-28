@@ -28,32 +28,43 @@ const Game: React.FC = () => {
   useEffect(() => {
     const audio = audioRef.current;
     
-    // 작업실(Phase B)으로 전환할 때는 Game BGM 정지
+    // 작업실(Phase B)으로 전환할 때는 Game BGM 강제 정지
     if (gameState.currentPhase === 'B') {
-      if (audio && !audio.paused) {
-        console.log('🔧 작업실로 전환 - Game BGM 정지');
+      if (audio) {
+        console.log('🔧 작업실로 전환 - Game BGM 강제 정지');
         audio.pause();
+        audio.currentTime = 0; // 재생 위치 초기화
         setIsPlaying(false);
       }
       return;
     }
     
-    // 미니게임 Phase A이고 현재 미니게임이 없을 때만 Game BGM 재생
+    // 미니게임 선택화면에서만 BGM 재생
     if (gameState.currentPhase === 'A' && !gameState.currentMiniGame) {
       if (audio && audio.paused) {
-        console.log('🎵 미니게임 선택 화면으로 복귀 - Game BGM 재개');
+        console.log('🎵 미니게임 선택 화면 - Game BGM 재생');
         audio.play().catch(console.error);
       }
     }
-    // 미니게임 플레이 중일 때는 Game BGM 정지
+    // 특정 미니게임에서만 BGM 재생 (버섯왕국달리기, 부끄부끄 기억력 테스트)
     else if (gameState.currentMiniGame) {
-      if (audio && !audio.paused) {
-        console.log('🎮 미니게임 시작 - Game BGM 정지');
-        audio.pause();
-        setIsPlaying(false);
+      const currentGame = gameState.miniGames.find(g => g.id === gameState.currentMiniGame);
+      const shouldPlayBgm = currentGame && (currentGame.type === 'running' || currentGame.type === 'memory');
+      
+      if (shouldPlayBgm) {
+        if (audio && audio.paused) {
+          console.log(`🎵 ${currentGame.name} - Game BGM 재생`);
+          audio.play().catch(console.error);
+        }
+      } else {
+        if (audio && !audio.paused) {
+          console.log(`🎮 ${currentGame?.name || '게임'} - Game BGM 정지 (자체 BGM 사용 또는 BGM 없음)`);
+          audio.pause();
+          setIsPlaying(false);
+        }
       }
     }
-  }, [gameState.currentPhase, gameState.currentMiniGame]);
+  }, [gameState.currentPhase, gameState.currentMiniGame, gameState.miniGames]);
 
   useEffect(() => {
     // 오디오 객체 생성
@@ -192,35 +203,6 @@ const Game: React.FC = () => {
     };
   }, []);
 
-  // 수동 음악 제어 함수
-  const toggleMusic = async () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    // 작업실에서는 Game BGM 제어 불가 (Workshop BGM이 관리)
-    if (gameState.currentPhase === 'B') {
-      console.log('🔧 작업실에서는 Game BGM 제어가 비활성화됩니다');
-      return;
-    }
-
-    // 미니게임 중에는 Game BGM 제어 불가
-    if (gameState.currentMiniGame) {
-      console.log('🎮 미니게임 중에는 Game BGM 제어가 비활성화됩니다');
-      return;
-    }
-
-    try {
-      if (audio.paused) {
-        await audio.play();
-        console.log('▶️ Game BGM 수동 재생 시작');
-      } else {
-        audio.pause();
-        console.log('⏸️ Game BGM 수동 일시정지');
-      }
-    } catch (error) {
-      console.error('❌ Game BGM 수동 재생/정지 실패:', error);
-    }
-  };
 
   // 현재 게임 참조를 메모이제이션
   const currentGame = React.useMemo(() => {
@@ -296,47 +278,6 @@ const Game: React.FC = () => {
 
   return (
     <div className="game">
-      {/* 음악 제어 버튼 - 미니게임 선택 화면(Phase A, 미니게임 없음)에서만 표시 */}
-      {gameState.currentPhase === 'A' && !gameState.currentMiniGame && (
-        <>
-          <button 
-            onClick={toggleMusic}
-            style={{
-              position: 'fixed',
-              top: '10px',
-              right: '10px',
-              padding: '8px 12px',
-              backgroundColor: isPlaying ? '#ff4444' : '#44ff44',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '12px',
-              zIndex: 1000
-            }}
-          >
-            {isPlaying ? '🔇 음악 끄기' : '🎵 음악 켜기'}
-          </button>
-          
-          {/* 재생 상태 표시 */}
-          {isPlaying && (
-            <div style={{ 
-              position: 'fixed', 
-              top: '10px', 
-              left: '10px', 
-              background: 'green', 
-              color: 'white', 
-              padding: '5px', 
-              fontSize: '12px',
-              borderRadius: '5px',
-              zIndex: 1000
-            }}>
-              🎵 메인 BGM 재생 중
-            </div>
-          )}
-        </>
-      )}
-
       {content}
       <div className="phase-switch">
         <button 

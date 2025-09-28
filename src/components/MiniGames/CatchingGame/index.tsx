@@ -73,6 +73,14 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
   const animationFrameIdRef = useRef<number>(0);
   const itemIdCounterRef = useRef<number>(0);
 
+  // 컴포넌트 언마운트 시 BGM 정지
+  useEffect(() => {
+    return () => {
+      console.log('🔇 요시 게임 컴포넌트 언마운트 - BGM 정지');
+      stopBgm();
+    };
+  }, []);
+
   // 초기화 함수
   const initializeGame = useCallback(async () => {
     // 오디오 초기화
