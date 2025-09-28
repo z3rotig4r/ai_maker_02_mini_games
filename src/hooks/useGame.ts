@@ -25,7 +25,7 @@ const initialState: GameState = {
     },
     {
       id: 'rhythm',
-      name: '쿵쿵의 리듬 블록',
+      name: '쿵쿵이 잡기',
       type: 'rhythm',
       difficulty: 1,
       completed: false,
