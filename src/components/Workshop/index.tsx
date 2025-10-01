@@ -266,7 +266,7 @@ const Workshop: React.FC<WorkshopProps> = ({
           <div className="panel">
             <h2>모든 전설의 무기 완성! 🏆</h2>
             <p>이제 쿠파를 물리치러 갑시다!</p>
-            <button onClick={() => alert('창을 닫고, 🚩쿠파성으로!!  \n 쿠파를 무찌르기 위한 힌트: AI대소동, 내가 해결사!')}>
+            <button onClick={() => alert('창을 닫고, 🚩쿠파성으로!!  \n쿠파를 무찌르기 위한 힌트: AI대소동, 내가 해결사!')}>
               보스전 시작
             </button>
           </div>
