@@ -16,10 +16,10 @@ export const DIFFICULTY_CONFIG = {
   HALFLIFE: 14,             // 반감기 (초) - 22 → 14 (감쇠 속도 증가)
 
   // 폭탄 확률 관련 설정
-  BOMB_PROB_START: 0.10,    // 시작 시 폭탄 확률 (10%)
-  BOMB_PROB_END: 0.70,      // 최종 폭탄 확률 (70%) - 0.48 → 0.70
-  BOMB_RAMP_SEC: 80,        // 폭탄 확률 증가 기간 (초) - 60 → 80
-  MAX_ACTIVE_BOMBS: 4,      // 동시 최대 폭탄 수 - 3 → 4
+  BOMB_PROB_START: 0.20,    // 시작 시 폭탄 확률 (20%) - 10% → 20%
+  BOMB_PROB_END: 0.75,      // 최종 폭탄 확률 (75%) - 70% → 75%
+  BOMB_RAMP_SEC: 60,        // 폭탄 확률 증가 기간 (초) - 80 → 60 (더 빠르게 증가)
+  MAX_ACTIVE_BOMBS: 6,      // 동시 최대 폭탄 수 - 4 → 6
 
   // 성능 및 게임 제한
   MAX_ENTITIES_ON_SCREEN: 12, // 화면 내 최대 오브젝트 수 - 10 → 12
@@ -38,8 +38,8 @@ export const EXT = {
   SOFT_SPEED_PER_SEC: 6,         // 이후로는 느리게 추가 가속
   MAX_SPEED_HARD: 900,           // 최종 상한
   MIN_SPAWN_HARD: 0.18,          // 최종 하한
-  EXTRA_BOMB_PER_SEC: 0.003,     // 60초 이후 추가로 천천히 증가
-  MAX_BOMB_PROB: 0.85,           // 최대 폭탄 확률
+  EXTRA_BOMB_PER_SEC: 0.005,     // 60초 이후 추가로 더 빠르게 증가 - 0.003 → 0.005
+  MAX_BOMB_PROB: 0.90,           // 최대 폭탄 확률 - 0.85 → 0.90
 } as const;
 
 /**

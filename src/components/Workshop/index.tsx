@@ -26,6 +26,7 @@ const Workshop: React.FC<WorkshopProps> = ({
   const { inventory, weapons, selectedMaterial, craftingSlots, showToast, toastMessage, isShaking, lastRejectedSlot, crafted, successTick } = gameState;
   const [failFlash, setFailFlash] = useState(false);
   const [result, setResult] = useState<WeaponId | null>(null);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   // Workshop 오디오 초기화 및 BGM 관리
   useEffect(() => {
@@ -203,6 +204,13 @@ const Workshop: React.FC<WorkshopProps> = ({
             <div className="coin-dot" />
             <h3 className="section-title">무기 제작</h3>
             <div className="coin-dot" />
+            <button 
+              className="help-button"
+              onClick={() => setShowHelpModal(true)}
+              title="조합 방법 도움말"
+            >
+              ?
+            </button>
           </div>
           
           {/* 3D 럭키박스 조합대 */}
@@ -256,6 +264,30 @@ const Workshop: React.FC<WorkshopProps> = ({
           <div>
             <h3>제작 성공! {result.replace(/_/g, ' ')}</h3>
             <p>전설의 무기를 획득했어요! 다른 조합도 도전해 볼까요?</p>
+          </div>
+        </div>
+      )}
+
+      {/* 도움말 모달 */}
+      {showHelpModal && (
+        <div className="help-modal">
+          <div className="help-panel">
+            <div className="help-header">
+              <h2>무기 제작 방법</h2>
+              <button 
+                className="close-button"
+                onClick={() => setShowHelpModal(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="help-content">
+              <ul>
+                <li>보유재료에서 생물, 물건, 효과 각각 1개씩을 선택하여 조합대 위에 올려놓으세요</li>
+                <li><strong>다른 재료로 바꾸려면 새로운 재료를 선택한 후 원하는 슬롯을 클릭하세요</strong></li>
+                <li>재료를 모두 배치한 후 &quot;제작하기&quot; 버튼을 클릭하세요</li>
+              </ul>
+            </div>
           </div>
         </div>
       )}
