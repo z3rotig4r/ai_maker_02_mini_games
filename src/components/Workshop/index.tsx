@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './Workshop.css';
 import '../../styles/theme.css';
 import { GameState, SlotIndex, WeaponId } from '../../types';
-import { MATERIALS_MAP } from '../../data/materials';
 import CraftingAltar from '../CraftingAltar';
 import HintPanel from '../HintPanel';
 import MarioBackdrop from '../MarioBackdrop';
-import { initWorkshopAudio, startWorkshopBgm, stopWorkshopBgm, playWorkshop, duckBgm, ensureAudioUnlocked, syncMute } from './audioWorkshop';
+import { initWorkshopAudio, startWorkshopBgm, stopWorkshopBgm, playWorkshop, duckBgm, ensureAudioUnlocked } from './audioWorkshop';
 
 interface WorkshopProps {
   gameState: GameState;
@@ -14,6 +13,7 @@ interface WorkshopProps {
   placeOnSlot: (slot: SlotIndex) => void;
   handleCraft: () => void;
   clearToast: () => void;
+  clearSlots: () => void;
 }
 
 const Workshop: React.FC<WorkshopProps> = ({ 
@@ -21,16 +21,36 @@ const Workshop: React.FC<WorkshopProps> = ({
   selectMaterial, 
   placeOnSlot, 
   handleCraft, 
-  clearToast 
+  clearToast,
+  clearSlots
 }) => {
   const { inventory, weapons, selectedMaterial, craftingSlots, showToast, toastMessage, isShaking, lastRejectedSlot, crafted, successTick } = gameState;
   const [failFlash, setFailFlash] = useState(false);
   const [result, setResult] = useState<WeaponId | null>(null);
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [successFlash, setSuccessFlash] = useState(false);
+  const shownWeaponsRef = useRef<Set<WeaponId>>(new Set());
+  const resultTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const flashTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Workshop 오디오 초기화 및 BGM 관리
   useEffect(() => {
     let isMounted = true;
+    
+    // 컴포넌트 마운트 시 결과 카드 초기화
+    setResult(null);
+    // 이미 제작된 무기들을 shownWeaponsRef에 추가
+    shownWeaponsRef.current = new Set(crafted);
+    
+    // 기존 타이머 정리
+    if (resultTimerRef.current) {
+      clearTimeout(resultTimerRef.current);
+      resultTimerRef.current = null;
+    }
+    if (flashTimerRef.current) {
+      clearTimeout(flashTimerRef.current);
+      flashTimerRef.current = null;
+    }
     
     const initializeAudio = async () => {
       try {
@@ -105,17 +125,43 @@ const Workshop: React.FC<WorkshopProps> = ({
     }
   }, [isShaking]);
 
-  // 성공 시 결과 카드 표시 및 SFX + BGM ducking
+  // 새로운 무기 제작 시에만 축하 창 표시 (무기별로 한 번만)
   useEffect(() => {
-    if (successTick > 0 && crafted.length > 0) {
-      playWorkshop('craft_success');
-      duckBgm({ to: 0.063, holdMs: 1400 }); // DUCK_LEVEL_RESULT
+    // crafted 배열이 실제로 증가했을 때만 실행
+    if (crafted.length > 0) {
       const latestWeapon = crafted[crafted.length - 1];
-      setResult(latestWeapon);
-      const timer = setTimeout(() => setResult(null), 3000);
-      return () => clearTimeout(timer);
+      console.log('🔍 무기 제작 감지:', {
+        craftedLength: crafted.length,
+        latestWeapon,
+        shownWeapons: Array.from(shownWeaponsRef.current)
+      });
+      
+      // 아직 이 무기에 대한 축하 창을 보여주지 않았다면 표시
+      if (!shownWeaponsRef.current.has(latestWeapon)) {
+        console.log('🎉 새로운 무기 제작 성공! 축하 창 표시:', latestWeapon);
+        shownWeaponsRef.current.add(latestWeapon);
+        playWorkshop('craft_success');
+        duckBgm({ to: 0.063, holdMs: 1400 });
+        setSuccessFlash(true);
+        setResult(latestWeapon);
+        
+        // 3초 후 결과 카드 숨기기
+        resultTimerRef.current = setTimeout(() => {
+          console.log('⏰ 3초 경과 - 결과 카드 숨김');
+          setResult(null);
+          resultTimerRef.current = null;
+        }, 3000);
+        
+        // 1초 후 플래시 효과 숨기기
+        flashTimerRef.current = setTimeout(() => {
+          setSuccessFlash(false);
+          flashTimerRef.current = null;
+        }, 1000);
+      } else {
+        console.log('🚫 이미 축하 창을 보여준 무기:', latestWeapon);
+      }
     }
-  }, [successTick, crafted]);
+  }, [crafted]);
 
   // 모든 무기 제작 완료 여부
   const allCrafted = new Set(crafted).size >= 3;
@@ -124,6 +170,7 @@ const Workshop: React.FC<WorkshopProps> = ({
     <div className="workshop">
       <MarioBackdrop variant="sky" />
       {failFlash && <div className="flash-red" />}
+      {successFlash && <div className="flash-success" />}
       
       <div className="workshop-header mario-card">
         <div className="section-header">
@@ -191,7 +238,7 @@ const Workshop: React.FC<WorkshopProps> = ({
                     role="button"
                     aria-label={`${ingredient.name} 선택`}
                   >
-                    <img src={ingredient.image} alt={ingredient.name} width="48" height="48" />
+                    <img src={ingredient.image} alt={ingredient.name} width="70" height="70" />
                   </div>
                 ))}
               </div>
@@ -227,6 +274,9 @@ const Workshop: React.FC<WorkshopProps> = ({
 
 
           <div className="crafting-controls">
+            <button className="btn-mario btn-reset" onClick={clearSlots}>
+              다시하기
+            </button>
             <button className="btn-mario" onClick={handleCraftPress}>
               제작하기
             </button>

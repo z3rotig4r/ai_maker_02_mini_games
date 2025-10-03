@@ -50,15 +50,20 @@ const HintPanel: React.FC<HintPanelProps> = ({ gameState }) => {
           <h3 className="section-title">무기 제작 힌트</h3>
           <div className="coin-dot" />
         </div>
-        <select 
-          value={selectedWeapon} 
-          onChange={(e) => setSelectedWeapon(e.target.value as 'boo_shell_mace' | 'goomba_ice_hammer' | 'cheep_water_cannon')}
-          className="weapon-selector focus-ring"
-        >
-          {Object.entries(weaponNames).map(([key, name]) => (
-            <option key={key} value={key}>{name}</option>
-          ))}
-        </select>
+        <div className="weapon-selector-container">
+          <div className="legendary-weapon-message">
+            전설의 무기 3개를 만드십시오!!!!
+          </div>
+          <select 
+            value={selectedWeapon} 
+            onChange={(e) => setSelectedWeapon(e.target.value as 'boo_shell_mace' | 'goomba_ice_hammer' | 'cheep_water_cannon')}
+            className="weapon-selector focus-ring"
+          >
+            {Object.entries(weaponNames).map(([key, name]) => (
+              <option key={key} value={key}>{name}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="hints-grid">
