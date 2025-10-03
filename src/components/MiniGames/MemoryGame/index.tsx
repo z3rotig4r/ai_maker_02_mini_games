@@ -93,6 +93,9 @@ const MemoryGame: React.FC<MemoryGameProps> = ({ difficulty, onComplete }) => {
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
   const [isGameCompleted, setIsGameCompleted] = useState<boolean>(false);
   const [isShuffling, setIsShuffling] = useState<boolean>(false);
+  const [timeLeft, setTimeLeft] = useState<number>(20);
+  const [isGameFailed, setIsGameFailed] = useState<boolean>(false);
+  const [showFailureModal, setShowFailureModal] = useState<boolean>(false);
 
   const shuffleCards = useCallback((count: number) => {
     const selectedValues = CARD_VALUES.slice(0, count / 2);
@@ -121,19 +124,44 @@ const MemoryGame: React.FC<MemoryGameProps> = ({ difficulty, onComplete }) => {
     setMoves(0);
     setIsGameStarted(false);
     setIsGameCompleted(false);
+    setTimeLeft(20);
+    setIsGameFailed(false);
+    setShowFailureModal(false);
   }, [difficulty, shuffleCards]);
 
   useEffect(() => {
     initializeGame();
   }, [initializeGame]);
 
+  // 타이머 로직
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
+    if (isGameStarted && !isGameCompleted && !isGameFailed && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            setIsGameFailed(true);
+            setShowFailureModal(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isGameStarted, isGameCompleted, isGameFailed, timeLeft]);
+
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
 const handleCardClick = useCallback((cardId: number) => {
     console.log('Card clicked:', cardId);
     
-    if (isGameCompleted || isProcessing) {
-      console.log('Game is completed or processing');
+    if (isGameCompleted || isProcessing || isGameFailed) {
+      console.log('Game is completed, processing, or failed');
       return;
     }
 
@@ -226,6 +254,11 @@ const handleCardClick = useCallback((cardId: number) => {
     setShowSuccessModal(false);
   }, [onComplete]);
 
+  const handleFailureRetry = useCallback(() => {
+    setShowFailureModal(false);
+    initializeGame();
+  }, [initializeGame]);
+
   const handleShuffleComplete = useCallback(() => {
     setIsShuffling(false);
     setCards(shuffleCards(Math.min(16, Math.max(8, 8 + (difficulty - 1) * 4))));
@@ -243,14 +276,14 @@ const handleCardClick = useCallback((cardId: number) => {
           <span className="info-label">찾은 짝</span>
           <span className="info-value">{matchedPairs}</span>
         </div>
-        {isGameCompleted && (
-          <div className="game-complete">
-            <div>게임 완료!</div>
-            <button className="restart-button" onClick={initializeGame}>
-              다시 시작
-            </button>
-          </div>
-        )}
+      </div>
+      
+      {/* 남은 시간 컨테이너 - 가장 아래에 배치 */}
+      <div className="time-container">
+        <div className="time-box">
+          <span className="time-label">남은 시간</span>
+          <span className={`time-value ${timeLeft <= 5 ? 'time-warning' : ''}`}>{timeLeft}초</span>
+        </div>
       </div>
       {showSuccessModal && (
         <div className="success-modal">
@@ -266,10 +299,24 @@ const handleCardClick = useCallback((cardId: number) => {
           </div>
         </div>
       )}
+      {showFailureModal && (
+        <div className="failure-modal">
+          <div className="modal-content">
+            <h2 className="modal-title">⏰ 시간 초과! ⏰</h2>
+            <p className="modal-message">
+              20초 안에 모든 짝을 찾지 못했습니다.<br/>
+              다시 도전해보세요!
+            </p>
+            <button className="modal-button" onClick={handleFailureRetry}>
+              다시 도전하기
+            </button>
+          </div>
+        </div>
+      )}
       <div 
         className="cards-grid" 
         style={{
-          gridTemplateColumns: `repeat(${Math.ceil(Math.sqrt(cards.length))}, 1fr)`,
+          gridTemplateColumns: 'repeat(3, 1fr)',
           gap: '10px',
           padding: '20px'
         }}

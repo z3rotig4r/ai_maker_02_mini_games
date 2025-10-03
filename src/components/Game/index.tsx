@@ -17,7 +17,8 @@ const Game: React.FC = () => {
     selectMaterial,
     placeOnSlot,
     handleCraft,
-    clearToast
+    clearToast,
+    clearSlots
   } = useGame();
 
   // 배경음악 관련 상태
@@ -275,6 +276,7 @@ const Game: React.FC = () => {
         placeOnSlot={placeOnSlot}
         handleCraft={handleCraft}
         clearToast={clearToast}
+        clearSlots={clearSlots}
       />
     </div>
   );

@@ -74,9 +74,13 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
     for (let i = 0; i < noteCount; i++) {
       const position = Math.floor(Math.random() * 4); // 랜덤 위치
       
+      // 노트가 히트라인에 도달하는 정확한 시간 계산
+      // 노트는 2초 동안 떨어져서 히트라인에 도달
+      const noteHitTime = now + (i * noteInterval * speedMultiplier) + 2000; // 2초 후에 히트라인 도달
+      
       newNotes.push({
         id: i,
-        time: now + (i * noteInterval * speedMultiplier) + 2000, // 2초 후부터 시작
+        time: noteHitTime, // 히트라인 도달 시간을 저장
         type: 'kkong', // 모든 노트를 쿵쿵으로
         position: position
       });
@@ -154,7 +158,7 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
           
           setTimeout(() => {
             setShowGhostMessage(false);
-            onComplete('히든 조건완료! 끝까지 게임을 플레이 하셨기에 힌트가 제공됩니다');
+            setShowResults(true);
           }, 3000);
         } else {
           // 게임이 계속 진행 중이면 새로운 노트 생성
@@ -162,12 +166,18 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
             const bpm = 120;
             const beatInterval = 60000 / bpm;
             const noteInterval = beatInterval;
-            const speedMultiplier = Math.max(0.7, 1 - (difficulty - 1) * 0.05);
+            
+            // 게임 시간에 따라 속도 증가 (0초부터 시작해서 60초까지)
+            const gameDuration = now - gameStartTime;
+            const speedIncrease = Math.min(0.5, gameDuration / 60000 * 0.5); // 최대 0.5배까지 빨라짐
+            const speedMultiplier = Math.max(0.3, 1 - speedIncrease); // 0.3배까지 빨라짐
             
             const position = Math.floor(Math.random() * 4);
+            const noteHitTime = now + 2000; // 2초 후에 히트라인 도달
+            
             const newNote: Note = {
               id: Date.now() + Math.random(),
-              time: now + 2000, // 2초 후에 히트라인에 도달하도록
+              time: noteHitTime, // 히트라인 도달 시간을 저장
               type: 'kkong', // 모든 노트를 쿵쿵으로
               position: position
             };
@@ -198,44 +208,85 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
 
     const now = Date.now();
     setNotes(prev => {
-      const noteIndex = prev.findIndex(note => {
-        const elapsed = now - note.time;
-        // 노트가 히트라인에 도달했을 때 ±300ms 범위에서 판정 (더 넓게)
-        return note.position === key && elapsed >= -300 && elapsed <= 300;
-      });
-
-      if (noteIndex === -1) {
-        // 잘못된 키를 누르면 점수 감소 (miss는 카운트하지 않음)
+      // 해당 레인의 모든 노트 중에서 판정 가능한 노트 찾기
+      const candidateNotes = prev.filter(note => note.position === key);
+      
+      if (candidateNotes.length === 0) {
+        // 잘못된 키를 누르면 점수 감소
         setCombo(0);
-        setScore(s => Math.max(0, s - 30)); // 30점 감소
+        setScore(s => Math.max(0, s - 30));
         return prev;
       }
 
-      const note = prev[noteIndex];
-      const elapsed = now - note.time;
+      // 가장 가까운 노트 찾기 (시간 기준)
+      let bestNote: Note | null = null;
+      let bestDelta = Infinity;
+      
+      for (const note of candidateNotes) {
+        // 노트가 히트라인에 도달하는 정확한 시간 계산
+        // 노트는 2초 동안 떨어져서 히트라인에 도달
+        const noteHitTime = note.time;
+        const deltaMs = now - noteHitTime;
+        const absDelta = Math.abs(deltaMs);
+        
+        // 300ms 이내의 노트만 고려
+        if (absDelta <= 300 && absDelta < bestDelta) {
+          bestNote = note;
+          bestDelta = absDelta;
+        }
+      }
+
+      if (!bestNote) {
+        // 판정 범위 밖의 키를 누르면 점수 감소
+        setCombo(0);
+        setScore(s => Math.max(0, s - 30));
+        return prev;
+      }
+
+      // 정확한 시간 기준 판정 (히트라인 중심)
+      const noteHitTime = bestNote.time;
+      const deltaMs = now - noteHitTime;
       let accuracy: 'perfect' | 'good' | 'bad' = 'bad';
       let points = 0;
 
-      // 정확도 판정 (더 관대하게)
-      if (Math.abs(elapsed) <= 100) {
+      // 시간 기준 판정 (히트라인 중심)
+      if (Math.abs(deltaMs) <= 100) {
         accuracy = 'perfect';
         points = 100;
-      } else if (Math.abs(elapsed) <= 200) {
+      } else if (Math.abs(deltaMs) <= 200) {
         accuracy = 'good';
         points = 50;
       } else {
         accuracy = 'bad';
-        points = 20; // bad도 점수 증가
+        points = 20;
       }
 
+      // 디버그 로그 (히트라인 위치 정보 포함)
+      const hitLinePosition = 100; // 히트라인 위치 (레인 하단, 100%)
+      const noteElapsed = now - bestNote.time;
+      const noteProgress = Math.max(0, Math.min(100, ((noteElapsed + 2000) / 2000) * 100));
+      
+      console.log('판정 디버그:', {
+        nowMs: now,
+        noteTimeMs: bestNote.time,
+        noteHitTime: noteHitTime,
+        deltaMs: deltaMs,
+        accuracy: accuracy,
+        key: key,
+        position: bestNote.position,
+        hitLinePosition: hitLinePosition,
+        noteProgress: noteProgress,
+        isAtHitLine: Math.abs(noteProgress - hitLinePosition) < 5
+      });
+
       // 노트를 눌렸다고 표시
-      const updatedNote = { ...note, isHit: true };
+      const updatedNote = { ...bestNote, isHit: true };
 
       // 시각적 효과 표시
       setShowAccuracy(accuracy);
       setTimeout(() => setShowAccuracy(null), 800);
 
-      if (note.type === 'danger') {
+      if (bestNote.type === 'danger') {
         setCombo(0);
         setScore(s => Math.max(0, s - 50));
         setGameStats(prevStats => ({
@@ -303,9 +354,12 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
 
       // 노트를 눌린 상태로 업데이트하고 잠깐 보이게 한 후 제거
       const newNotes = [...prev];
-      newNotes[noteIndex] = updatedNote;
+      const noteIndex = newNotes.findIndex(n => n.id === bestNote!.id);
+      if (noteIndex !== -1) {
+        newNotes[noteIndex] = updatedNote;
+      }
       
-      // 0.잠시 후에 노트 제거
+      // 0.5초 후에 노트 제거
       setTimeout(() => {
         setNotes(currentNotes => currentNotes.filter(n => n.id !== updatedNote.id));
       }, 500);
@@ -337,8 +391,7 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
       {!gameStarted ? (
         <div className="start-screen">
           <h2>쿵쿵이 잡기</h2>
-          <p>무지개 다리를 건넌 쿵쿵이가 더 지나오지 못하게 해주세요!</p>
-          <p>D, F, J, K를 이용해 무지개 다리를 쿵쿵이가 넘은 시점을 노리세요!</p>
+          <p>쿵쿵이가 탈출하기 직전에 D,F,J,K를 이용해서 쿵쿵이를 잡아주세요!!</p>
           <button onClick={startGame}>게임 시작</button>
         </div>
       ) : (
@@ -352,18 +405,35 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
             <div className="lanes">
               {[0, 1, 2, 3].map(lane => (
                 <div key={lane} className="lane">
+                  <div className="lane-label">
+                    {['D', 'F', 'J', 'K'][lane]}
+                  </div>
                   <div className="hit-line" />
                   {notes
                     .filter(note => note.position === lane && Date.now() >= note.time - 2000)
                     .map(note => {
-                      const elapsed = Date.now() - note.time;
-                      // 노트가 2초 동안 떨어져서 히트라인에 도달
-                      // progress가 100%일 때 히트라인에 도달하도록 계산
-                      const progress = Math.max(0, Math.min(100, ((elapsed + 2000) / 2000) * 100));
+                      const now = Date.now();
+                      const elapsed = now - note.time;
+                      
+                      // 게임 시간에 따른 속도 변화 적용
+                      const gameDuration = now - gameStartTime;
+                      const speedIncrease = Math.min(0.5, gameDuration / 60000 * 0.5);
+                      const speedMultiplier = Math.max(0.3, 1 - speedIncrease);
+                      
+                      // 노트가 2초 동안 떨어져서 히트라인에 도달 (속도 변화 반영)
+                      // elapsed가 0일 때 히트라인(100%)에 도달하도록 계산
+                      const fallTime = 2000 * speedMultiplier;
+                      const progress = Math.max(0, Math.min(100, ((elapsed + fallTime) / fallTime) * 100));
+                      
+                      // 히트라인 위치 계산 (레인 하단)
+                      const hitLinePosition = 100; // 레인 하단 (100%)
+                      // 0.3초 늦게 글로우 (progress가 85% 이상일 때)
+                      const isAtHitLine = progress >= 85; // 85% 이상에서 글로우
+                      
                       return (
                         <div
                           key={note.id}
-                          className={`note ${note.type} ${note.isHit ? 'hit' : ''}`}
+                          className={`note ${note.type} ${note.isHit ? 'hit' : ''} ${isAtHitLine ? 'at-hit-line' : ''}`}
                           style={{
                             top: `${progress}%`
                           }}
@@ -478,12 +548,16 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
               {gameStats.score >= 8000 ? (
                 <div className="clear-message">
                   <p>🎉 클리어했습니다!!!</p>
-                  <p>잠시 후 자동으로 미니게임 선택화면으로 이동됩니다!</p>
+                  <button className="continue-btn" onClick={() => onComplete('으아악.. 훌륭하군 다음으로 넘어가라')}>
+                    계속하기
+                  </button>
                 </div>
               ) : (
                 <div className="retry-message">
                   <p>히든 미션 클리어! 끝까지 쿵쿵이와 싸워주셔서 힌트를 얻게 되었습니다!</p>
-                  <p>잠시 후 자동으로 미니게임 선택화면으로 이동됩니다!</p>
+                  <button className="continue-btn" onClick={() => onComplete('히든 조건완료! 끝까지 게임을 플레이 하셨기에 힌트가 제공됩니다')}>
+                    계속하기
+                  </button>
                 </div>
               )}
             </div>
@@ -494,22 +568,20 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
               <h2>게임 종료!</h2>
               <p>최종 점수: {score}</p>
               {score >= 8000 ? (
-                <p>클리어했습니다!!!</p>
+                <>
+                  <p>클리어했습니다!!!</p>
+                  <button className="continue-btn" onClick={() => onComplete('으아악.. 훌륭하군 다음으로 넘어가라')}>
+                    계속하기
+                  </button>
+                </>
               ) : (
-                <p>히든 미션 클리어! 끝까지 쿵쿵이와 싸워주셔서 힌트를 얻게 되었습니다!</p>
+                <>
+                  <p>히든 미션 클리어! 끝까지 쿵쿵이와 싸워주셔서 힌트를 얻게 되었습니다!</p>
+                  <button className="continue-btn" onClick={() => onComplete('히든 조건완료! 끝까지 게임을 플레이 하셨기에 힌트가 제공됩니다')}>
+                    계속하기
+                  </button>
+                </>
               )}
-              <p>잠시 후 자동으로 미니게임 선택화면으로 이동됩니다!</p>
-              {(() => {
-                // 잠시 후 자동으로 미니게임 선택화면으로 이동
-                setTimeout(() => {
-                  if (score >= 8000) {
-                    onComplete('으아악.. 훌륭하군 다음으로 넘어가라');
-                  } else {
-                    onComplete('히든 조건완료! 끝까지 게임을 플레이 하셨기에 힌트가 제공됩니다');
-                  }
-                }, 5000);
-                return null;
-              })()}
             </div>
           )}
         </>

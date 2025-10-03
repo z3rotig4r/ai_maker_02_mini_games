@@ -49,6 +49,10 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
     activeBombs: 0,
     totalEntities: 0
   });
+  const [bombScale, setBombScale] = useState(1.0);
+  const [timeLeft, setTimeLeft] = useState<number>(DIFFICULTY_CONFIG.GAME_DURATION_SEC);
+  const [targetScore] = useState(DIFFICULTY_CONFIG.TARGET_SCORE);
+  const [showRetryPrompt, setShowRetryPrompt] = useState(false);
 
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [showHitbox, setShowHitbox] = useState<boolean>(false);
@@ -97,6 +101,7 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
     setIsGameOver(false);
     setLives(3);
     setLastCollisionTime(0);
+    setTimeLeft(DIFFICULTY_CONFIG.GAME_DURATION_SEC);
     gameStartTimeRef.current = Date.now();
     lastFrameTimeRef.current = Date.now();
     lastSpawnTimeRef.current = Date.now();
@@ -115,6 +120,14 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
 
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    // 리트라이 프롬프트가 표시된 상태에서 스페이스바
+    if (showRetryPrompt && e.code === 'Space') {
+      e.preventDefault();
+      setShowRetryPrompt(false);
+      setGameStarted(false);
+      return;
+    }
+    
     if (!gameStarted || isGameOver) return;
 
     // 화살표 키의 기본 스크롤 동작 방지
@@ -123,7 +136,7 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
     }
     
     setPressedKeys(prev => new Set(prev).add(e.key));
-  }, [gameStarted, isGameOver]);
+  }, [gameStarted, isGameOver, showRetryPrompt]);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
     setPressedKeys(prev => {
@@ -177,8 +190,11 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
     };
   }, [handleKeyDown, handleKeyUp]);
 
-  const startGame = async () => {
+  const startGame = useCallback(async () => {
     const now = performance.now();
+    
+    // 리트라이 프롬프트 숨기기
+    setShowRetryPrompt(false);
     
     // 게임 초기화
     await initializeGame();
@@ -207,7 +223,14 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
       activeBombs: 0,
       totalEntities: 0
     });
-  };
+  }, [initializeGame]);
+
+  // gameStarted가 false로 변경되고 리트라이 프롬프트가 없을 때 게임 시작
+  useEffect(() => {
+    if (!gameStarted && !showRetryPrompt && !isGameOver) {
+      startGame();
+    }
+  }, [gameStarted, showRetryPrompt, isGameOver, startGame]);
 
   useEffect(() => {
     if (!gameStarted || isGameOver) return;
@@ -226,12 +249,28 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
         return;
       }
 
-      // 무한 모드: 시간 제한 없음, 목숨이 0이 될 때까지 진행
+      // 타임캡 체크 (90초)
+      const remainingTime = DIFFICULTY_CONFIG.GAME_DURATION_SEC - elapsedSec;
+      setTimeLeft(Math.max(0, remainingTime));
+      
+      if (remainingTime <= 0) {
+        // 시간 종료 - 자동 게임 오버
+        stopBgm();
+        playSfx('victory', { volume: 0.9 });
+        setIsGameOver(true);
+        // 0.5초 후 리트라이 프롬프트 표시
+        setTimeout(() => setShowRetryPrompt(true), 500);
+        return;
+      }
 
       // 현재 난이도 값들 계산
       const currentSpeed = DifficultyUtils.calculateSpeed(elapsedSec);
       const currentSpawnInterval = DifficultyUtils.calculateSpawnInterval(elapsedSec);
       const currentBombProbability = DifficultyUtils.calculateBombProbability(elapsedSec);
+      const currentBombScale = DifficultyUtils.calculateBombScale(elapsedSec);
+      
+      // 폭탄 크기 업데이트
+      setBombScale(currentBombScale);
 
       // 스폰 타이머 업데이트
       spawnTimerRef.current -= deltaTimeMs;
@@ -331,6 +370,8 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
                     stopBgm();
                     playSfx('victory', { volume: 0.9 });
                     setIsGameOver(true);
+                    // 0.5초 후 리트라이 프롬프트 표시
+                    setTimeout(() => setShowRetryPrompt(true), 500);
                   }
                 }
               }
@@ -424,11 +465,16 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
 
   // 메인으로 돌아가기 클릭 시에만 onComplete 실행
   const handleReturnToMain = useCallback(() => {
-    // 힌트 저장 및 게임 완료 처리
-    onComplete('마지막 무기의 재료는... 물의 보석과 뽀꾸뽀꾸를 조합하면 돼!');
+    // 500점 달성 시에만 힌트 제공
+    if (score >= targetScore) {
+      onComplete('마지막 무기의 재료는... 물의 보석과 뽀꾸뽀꾸를 조합하면 돼!');
+    } else {
+      // 500점 미달성 시 힌트 없이 메인으로 돌아가기
+      onComplete('');
+    }
     // currentMiniGame을 null로 설정하여 메인 화면으로 돌아가기
     setGameStarted(false);
-  }, [onComplete]);
+  }, [onComplete, score, targetScore]);
 
   // 입력으로 인한 창 스크롤 방지
   useEffect(() => {
@@ -480,7 +526,6 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
           <HintBubble show={showHint} />
           
           <div className="game-info">
-            <div className="score">점수: {score}</div>
             <div className="lives">
               {Array.from({ length: 3 }).map((_, index) => (
                 <img
@@ -518,7 +563,16 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
               </div>
             </div>
             
-            {/* 무한 모드: 남은 시간 표시 제거 */}
+            {/* 게임 정보 표시 - 난이도 바 아래 */}
+            <div className="game-info-top">
+              <div className="score-info">
+                <div className="current-score">점수: {score}</div>
+                <div className="target-score">목표: {targetScore}</div>
+              </div>
+              <div className="time-info">
+                <div className="time-left">시간: {Math.ceil(timeLeft)}초</div>
+              </div>
+            </div>
             
             {/* 폭탄 상한 도달 시 시각적 피드백 */}
             {gameStats.activeBombs >= DIFFICULTY_CONFIG.MAX_ACTIVE_BOMBS && (
@@ -527,6 +581,7 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
               </div>
             )}
           </div>
+          
           
           {/* 파워업 HUD */}
           <div className="powerup-hud">
@@ -562,7 +617,11 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
                   <img 
                     className="sprite" 
                     src={item.type === 'fruit' ? cleanFruitImage : cleanBombImage} 
-                    alt="" 
+                    alt=""
+                    style={item.type === 'bomb' ? {
+                      transform: `scale(${bombScale})`,
+                      transition: 'transform 0.3s ease'
+                    } : {}}
                   />
                 )}
               </div>
@@ -603,28 +662,64 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
           {isGameOver && (
             <div className="game-over-overlay">
               <div className="game-over-modal">
-                <div className="success-message">
-                  <h2>미션 완료!</h2>
-                  
-                  {(() => {
-                    const tier = getScoreTier(score);
-                    return (
-                      <>
-                        <div className="score-display">
-                          <p>최종 점수</p>
-                          <p className="final-score">{score}</p>
+                {(() => {
+                  const isTargetAchieved = score >= targetScore;
+                  return (
+                    <>
+                      {isTargetAchieved ? (
+                        <div className="success-message">
+                          <h2>미션 완료!</h2>
+                          <div className="score-display">
+                            <p>최종 점수: {score} / {targetScore}</p>
+                            <p className="final-score target-achieved">
+                              🎉 목표 달성! 🎉
+                            </p>
+                          </div>
+                          <div className="success-content">
+                            <h3>축하합니다!</h3>
+                            <p>500점을 달성했습니다!</p>
+                            <button className="success-button" onClick={handleReturnToMain}>
+                              계속하기
+                            </button>
+                          </div>
                         </div>
-                        <div className="tier-display">
-                          <h3 className="tier-title">{tier.title}</h3>
-                          <p className="tier-message">{tier.msg}</p>
+                      ) : (
+                        <div className="retry-message">
+                          <h2>게임 오버!</h2>
+                          <div className="score-display">
+                            <p>최종 점수: {score} / {targetScore}</p>
+                            <p className="final-score target-failed">
+                              😢 목표 미달성
+                            </p>
+                          </div>
+                          <div className="retry-content">
+                            <h3>아쉽네요!</h3>
+                            <p>500점을 달성하지 못했습니다.</p>
+                            <button className="retry-button" onClick={() => startGame()}>
+                              다시 도전하기
+                            </button>
+                          </div>
                         </div>
-                        <button className="success-button" onClick={handleReturnToMain}>
-                          {tier.cta}
-                        </button>
-                      </>
-                    );
-                  })()}
-                </div>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+
+          {/* 즉시 리트라이 프롬프트 */}
+          {showRetryPrompt && (
+            <div className="retry-prompt">
+              <div className="retry-modal">
+                <h3>다시 도전하시겠습니까?</h3>
+                <p>스페이스바를 눌러 즉시 재시작!</p>
+                <button 
+                  className="retry-button"
+                  onClick={() => startGame()}
+                >
+                  다시 시작 (스페이스바)
+                </button>
               </div>
             </div>
           )}

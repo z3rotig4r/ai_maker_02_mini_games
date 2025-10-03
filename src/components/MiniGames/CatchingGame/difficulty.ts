@@ -12,8 +12,8 @@ export const DIFFICULTY_CONFIG = {
 
   // 스폰 간격 관련 설정 (지수 감쇠)
   BASE_SPAWN: 0.95,         // 시작 스폰 간격 (초) - 1.2 → 0.95
-  MIN_SPAWN: 0.28,          // 최소 스폰 간격 (초) - 0.45 → 0.28
-  HALFLIFE: 14,             // 반감기 (초) - 22 → 14 (감쇠 속도 증가)
+  MIN_SPAWN: 0.6,           // 최소 스폰 간격 (초) - 0.45 → 0.6 (과일이 너무 적어지는 것 방지)
+  HALFLIFE: 25,             // 반감기 (초) - 20 → 25 (더 천천히 감소)
 
   // 폭탄 확률 관련 설정
   BOMB_PROB_START: 0.20,    // 시작 시 폭탄 확률 (20%) - 10% → 20%
@@ -23,7 +23,8 @@ export const DIFFICULTY_CONFIG = {
 
   // 성능 및 게임 제한
   MAX_ENTITIES_ON_SCREEN: 12, // 화면 내 최대 오브젝트 수 - 10 → 12
-  GAME_DURATION_SEC: 0,     // 게임 전체 길이 (초) - 0이면 무제한 (무한 모드)
+  GAME_DURATION_SEC: 90,    // 게임 전체 길이 (초) - 90초 타임캡
+  TARGET_SCORE: 500,        // 목표 점수 (90초 내 달성 목표)
 
   // 디버그 설정
   ENABLE_DEBUG_LOGS: true,  // 개발용 콘솔 로그 활성화
@@ -37,9 +38,10 @@ export const EXT = {
   HARD_RAMP_SEC: 60,             // 여기까지는 기존 공식
   SOFT_SPEED_PER_SEC: 6,         // 이후로는 느리게 추가 가속
   MAX_SPEED_HARD: 900,           // 최종 상한
-  MIN_SPAWN_HARD: 0.18,          // 최종 하한
+  MIN_SPAWN_HARD: 0.5,           // 최종 하한 - 0.35 → 0.5 (과일이 너무 적어지는 것 방지)
   EXTRA_BOMB_PER_SEC: 0.005,     // 60초 이후 추가로 더 빠르게 증가 - 0.003 → 0.005
   MAX_BOMB_PROB: 0.90,           // 최대 폭탄 확률 - 0.85 → 0.90
+  MAX_BOMB_SCALE: 2.5,           // 최대 폭탄 크기 배율 (1.0 → 2.5)
 } as const;
 
 /**
@@ -69,43 +71,59 @@ export const DifficultyUtils = {
   },
 
   /**
-   * 현재 낙하 속도 계산 (픽셀/초) - 2단계 램프
+   * 현재 낙하 속도 계산 (픽셀/초) - 급격한 램프 시스템
    */
   calculateSpeed: (elapsedSec: number): number => {
     const { BASE_SPEED, SPEED_PER_SEC, MAX_SPEED } = DIFFICULTY_CONFIG;
     
-    // 1단계: 기본 램프
-    const speedLinear = BASE_SPEED + SPEED_PER_SEC * elapsedSec;
-    let speed = Math.min(speedLinear, MAX_SPEED);
+    // 기본 속도
+    let speed = BASE_SPEED + SPEED_PER_SEC * elapsedSec;
     
-    // 2단계: 60초 이후 소프트 램프
-    if (elapsedSec > EXT.HARD_RAMP_SEC) {
-      speed = Math.min(
-        MAX_SPEED + EXT.SOFT_SPEED_PER_SEC * (elapsedSec - EXT.HARD_RAMP_SEC),
-        EXT.MAX_SPEED_HARD
-      );
-    }
+    // 급격한 램프: 12초마다 지수적 증가
+    const rampInterval = 12; // 12초마다 램프
+    const rampCount = Math.floor(elapsedSec / rampInterval);
+    const rampMultiplier = Math.pow(1.4, rampCount); // 40%씩 증가
+    
+    speed *= rampMultiplier;
+    
+    // 최대 속도 제한
+    speed = Math.min(speed, MAX_SPEED * 1.5); // 최대 1.5배까지
     
     return speed;
   },
 
   /**
-   * 현재 스폰 간격 계산 (초) - 2단계 램프
+   * 현재 스폰 간격 계산 (초) - 급격한 램프 시스템
    */
   calculateSpawnInterval: (elapsedSec: number): number => {
     const { BASE_SPAWN, MIN_SPAWN, HALFLIFE } = DIFFICULTY_CONFIG;
     
-    // 1단계: 기본 지수 감쇠
+    // 기본 지수 감쇠
     let spawnInterval = DifficultyUtils.exponentialDecay(BASE_SPAWN, MIN_SPAWN, HALFLIFE, elapsedSec);
     
-    // 2단계: 60초 이후 추가 감쇠
-    if (elapsedSec > EXT.HARD_RAMP_SEC) {
-      // 60초 이후엔 1틱마다 0.985배씩 더 줄어드는 느낌
-      const extra = Math.pow(0.985, elapsedSec - EXT.HARD_RAMP_SEC);
-      spawnInterval = Math.max(spawnInterval * extra, EXT.MIN_SPAWN_HARD);
-    }
+    // 급격한 램프: 12초마다 스폰 간격 급격히 감소
+    const rampInterval = 12; // 12초마다 램프
+    const rampCount = Math.floor(elapsedSec / rampInterval);
+    const rampMultiplier = Math.pow(0.7, rampCount); // 30%씩 감소
+    
+    spawnInterval *= rampMultiplier;
+    
+    // 최소 간격 제한 (너무 빨라지지 않도록)
+    spawnInterval = Math.max(spawnInterval, 0.15); // 최소 0.15초
     
     return spawnInterval;
+  },
+
+  /**
+   * 현재 폭탄 크기 배율 계산 (1.0~2.5) - 시간에 따라 커짐
+   */
+  calculateBombScale: (elapsedSec: number): number => {
+    const { BOMB_RAMP_SEC } = DIFFICULTY_CONFIG;
+    const { MAX_BOMB_SCALE } = EXT;
+    
+    // 60초 동안 1.0에서 2.5까지 선형 증가
+    const progress = Math.min(elapsedSec / BOMB_RAMP_SEC, 1.0);
+    return 1.0 + (MAX_BOMB_SCALE - 1.0) * progress;
   },
 
   /**

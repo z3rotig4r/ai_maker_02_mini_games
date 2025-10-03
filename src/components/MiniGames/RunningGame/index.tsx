@@ -15,6 +15,7 @@ const JUMP_HEIGHT = 100;  // 점프 최대 높이
 const GROUND_Y = 45; // 지면 높이 (CSS의 bottom 값과 일치)
 
 const RunningGame: React.FC<RunningGameProps> = ({ difficulty, onComplete }) => {
+  const [gameStarted, setGameStarted] = useState(false);
   const [playerY, setPlayerY] = useState(0);
   const [velocityY, setVelocityY] = useState(0);
   const [isJumping, setIsJumping] = useState(false);
@@ -24,8 +25,14 @@ const RunningGame: React.FC<RunningGameProps> = ({ difficulty, onComplete }) => 
   const [gameOver, setGameOver] = useState(false);
   const [lastObstacleSpawn, setLastObstacleSpawn] = useState(0); // 마지막 굼바 생성 시점
 
+  // 게임 시작 함수
+  const startGame = useCallback(() => {
+    setGameStarted(true);
+  }, []);
+
   // 게임 재시작 함수
   const restartGame = useCallback(() => {
+    setGameStarted(false);
     setPlayerY(0);
     setVelocityY(0);
     setIsJumping(false);
@@ -56,6 +63,8 @@ const RunningGame: React.FC<RunningGameProps> = ({ difficulty, onComplete }) => 
   }, [jump]);
 
   useEffect(() => {
+    if (!gameStarted) return;
+    
     const gameLoop = setInterval(() => {
       // 플레이어 물리 업데이트
       setPlayerY(y => {
@@ -132,42 +141,52 @@ const RunningGame: React.FC<RunningGameProps> = ({ difficulty, onComplete }) => 
     }
 
     return () => clearInterval(gameLoop);
-  }, [isJumping, obstacles, coins, difficulty, gameOver, score, onComplete, playerY, lastObstacleSpawn]);
+  }, [gameStarted, isJumping, obstacles, coins, difficulty, gameOver, score, onComplete, playerY, lastObstacleSpawn]);
 
   return (
     <div className="running-game">
-      <div className="score">점수: {score}</div>
-      <div className="game-area">
-        <div 
-          className={`player ${isJumping ? 'jumping' : ''}`} 
-          style={{ left: 50, bottom: `${GROUND_Y - playerY}px` }}
-        />
-        {obstacles.map((x, i) => (
-          <div key={`obstacle-${i}`} className="obstacle" style={{ left: x, bottom: `${GROUND_Y}px` }} />
-        ))}
-        {coins.map((x, i) => (
-          <div key={`coin-${i}`} className="coin" style={{ left: x }} />
-        ))}
-      </div>
-      {gameOver && (
-        <div className="game-over">
-          <h2>{score >= 15 ? '미션 성공! 🎉' : '게임 오버! 😢'}</h2>
-          <p className="score-text">획득한 코인: {score}</p>
-          {score >= 15 ? (
-            <>
-              <button className="continue-btn" onClick={() => onComplete('첫 번째 무기엔... 뽀꾸미가 필요해!')}>
-                계속하기
-              </button>
-            </>
-          ) : (
-            <>
-              <p className="guide-text">15개의 코인을 모아보세요!</p>
-              <button className="retry-btn" onClick={restartGame}>
-                다시 시작
-              </button>
-            </>
-          )}
+      {!gameStarted ? (
+        <div className="start-screen">
+          <h2>버섯 왕국 달리기</h2>
+          <p>굼바랑 부딪히지 않고 점프(space)를 통해 코인 15개를 모아라!</p>
+          <button onClick={startGame}>게임 시작</button>
         </div>
+      ) : (
+        <>
+          <div className="score">점수: {score}</div>
+          <div className="game-area">
+            <div 
+              className={`player ${isJumping ? 'jumping' : ''}`} 
+              style={{ left: 50, bottom: `${GROUND_Y - playerY}px` }}
+            />
+            {obstacles.map((x, i) => (
+              <div key={`obstacle-${i}`} className="obstacle" style={{ left: x, bottom: `${GROUND_Y}px` }} />
+            ))}
+            {coins.map((x, i) => (
+              <div key={`coin-${i}`} className="coin" style={{ left: x }} />
+            ))}
+          </div>
+          {gameOver && (
+            <div className="game-over">
+              <h2>{score >= 15 ? '미션 성공! 🎉' : '게임 오버! 😢'}</h2>
+              <p className="score-text">획득한 코인: {score}</p>
+              {score >= 15 ? (
+                <>
+                  <button className="continue-btn" onClick={() => onComplete('첫 번째 무기엔... 뽀꾸미가 필요해!')}>
+                    계속하기
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="guide-text">15개의 코인을 모아보세요!</p>
+                  <button className="retry-btn" onClick={restartGame}>
+                    다시 시작
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
