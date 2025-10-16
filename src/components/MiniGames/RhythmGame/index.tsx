@@ -396,6 +396,10 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
         </div>
       ) : (
         <>
+          <div className="game-instruction">
+            <p>노래가 끝날 때까지 최대한 많은 쿵쿵이를 잡아주세요!</p>
+          </div>
+          
           <div className="game-info">
             <span>점수: {score}</span>
             <span>콤보: {combo}</span>
