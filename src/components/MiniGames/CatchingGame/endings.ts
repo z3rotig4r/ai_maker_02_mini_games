@@ -18,7 +18,7 @@ export const SCORE_TIERS = [
     cta: "시작화면으로 이동"
   },
   {
-    min: 230,
+    min: 200,
     title: "요시 에이스 ⭐",
     msg: "속도가 빨라져도 침착했어요. 전설의 무기에 한 걸음 더!",
     cta: "시작화면으로 이동"
