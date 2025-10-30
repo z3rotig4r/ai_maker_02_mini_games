@@ -218,7 +218,7 @@
 
 .key-container {
   position: absolute;
-  bottom: 24px;
+  bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -554,7 +554,7 @@
 /* 키 컨테이너 개선 */
 .key-container {
   position: absolute;
-  bottom: 20px;
+  bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
