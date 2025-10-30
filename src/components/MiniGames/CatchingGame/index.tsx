@@ -509,6 +509,12 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
     }
   }, [gameStarted]);
 
+  // 가상 방향키 핸들러
+  const pressLeft = useCallback(() => setPressedKeys(prev => new Set(prev).add('ArrowLeft')), []);
+  const releaseLeft = useCallback(() => setPressedKeys(prev => { const n = new Set(prev); n.delete('ArrowLeft'); return n; }), []);
+  const pressRight = useCallback(() => setPressedKeys(prev => new Set(prev).add('ArrowRight')), []);
+  const releaseRight = useCallback(() => setPressedKeys(prev => { const n = new Set(prev); n.delete('ArrowRight'); return n; }), []);
+
   return (
     <div className="catching-game">
       {/* 단일 배경 레이어 */}
@@ -600,7 +606,10 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
             })}
           </div>
           
-          <div className="game-area">
+          <div className="game-area"
+               onTouchStart={(e) => { e.preventDefault(); }}
+               onTouchMove={(e) => { e.preventDefault(); }}
+          >
             {items.map(item => (
               <div
                 key={item.id}
@@ -659,6 +668,32 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
               })()
             )}
           </div>
+          {/* 터치 방향키: iPad 등 터치 환경에서 키보드와 동일한 속도로 이동 */}
+          {!isGameOver && (
+            <div className="touch-controls" aria-hidden="false">
+              <button 
+                className="touch-btn left-btn"
+                onMouseDown={pressLeft}
+                onMouseUp={releaseLeft}
+                onMouseLeave={releaseLeft}
+                onTouchStart={(e) => { e.preventDefault(); pressLeft(); }}
+                onTouchEnd={(e) => { e.preventDefault(); releaseLeft(); }}
+              >
+                ◀
+              </button>
+              <button 
+                className="touch-btn right-btn"
+                onMouseDown={pressRight}
+                onMouseUp={releaseRight}
+                onMouseLeave={releaseRight}
+                onTouchStart={(e) => { e.preventDefault(); pressRight(); }}
+                onTouchEnd={(e) => { e.preventDefault(); releaseRight(); }}
+              >
+                ▶
+              </button>
+            </div>
+          )}
+
           {isGameOver && (
             <div className="game-over-overlay">
               <div className="game-over-modal">
