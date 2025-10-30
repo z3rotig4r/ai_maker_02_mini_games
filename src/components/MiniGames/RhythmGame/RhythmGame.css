@@ -218,7 +218,7 @@
 
 .key-container {
   position: absolute;
-  bottom: 80px;
+  bottom: 120px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -554,7 +554,7 @@
 /* 키 컨테이너 개선 */
 .key-container {
   position: absolute;
-  bottom: 80px;
+  bottom: 120px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -566,6 +566,11 @@
   border-radius: 20px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (max-height: 700px) {
+  /* 낮은 세로 해상도에서는 조금만 올림 */
+  .key-container { bottom: 80px; }
 }
 
 .key {
