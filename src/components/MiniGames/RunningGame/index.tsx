@@ -148,13 +148,17 @@ const RunningGame: React.FC<RunningGameProps> = ({ difficulty, onComplete }) => 
       {!gameStarted ? (
         <div className="start-screen">
           <h2>버섯 왕국 달리기</h2>
-          <p>굼바랑 부딪히지 않고 점프(space)를 통해 코인 15개를 모아라!</p>
+          <p>굼바랑 부딪히지 않고 점프(<strong>스페이스바</strong> 또는 <strong>화면 터치</strong>)로 코인 15개를 모아라!</p>
           <button onClick={startGame}>게임 시작</button>
         </div>
       ) : (
         <>
           <div className="score">점수: {score}</div>
-          <div className="game-area">
+          <div 
+            className="game-area"
+            onTouchStart={(e) => { e.preventDefault(); jump(); }}
+            onMouseDown={(e) => { if (e.buttons === 1) jump(); }}
+          >
             <div 
               className={`player ${isJumping ? 'jumping' : ''}`} 
               style={{ left: 50, bottom: `${GROUND_Y - playerY}px` }}

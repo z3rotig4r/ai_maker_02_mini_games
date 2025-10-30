@@ -20,6 +20,9 @@
   background: transparent !important;
   box-shadow: none !important;
   border: 0 !important;
+  /* 터치로 점프: 스크롤, 줌 제스처 방지 */
+  touch-action: none;
+  user-select: none;
 }
 
 /* 지면/땅 UI 요소 */
