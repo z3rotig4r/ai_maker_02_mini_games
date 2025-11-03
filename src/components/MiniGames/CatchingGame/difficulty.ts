@@ -24,10 +24,10 @@ export const DIFFICULTY_CONFIG = {
   // 성능 및 게임 제한
   MAX_ENTITIES_ON_SCREEN: 12, // 화면 내 최대 오브젝트 수 - 10 → 12
   GAME_DURATION_SEC: 90,    // 게임 전체 길이 (초) - 90초 타임캡
-  TARGET_SCORE: 200,        // 목표 점수 (90초 내 달성 목표)
+  TARGET_SCORE: 130,        // 목표 점수 (90초 내 달성 목표)
 
   // 디버그 설정
-  ENABLE_DEBUG_LOGS: true,  // 개발용 콘솔 로그 활성화
+  ENABLE_DEBUG_LOGS: false,  // 개발용 콘솔 로그 비활성화 (성능 최적화)
   LOG_INTERVAL_SEC: 5,      // 로그 출력 간격 (초)
 } as const;
 

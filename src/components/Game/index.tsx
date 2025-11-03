@@ -239,7 +239,7 @@ const Game: React.FC = () => {
       case 'rhythm':
         return <RhythmGame difficulty={currentGame.difficulty} onComplete={(hint) => completeMiniGame(currentGame.id, hint)} />;
       case 'catching':
-        return <CatchingGame difficulty={currentGame.difficulty} onComplete={(hint) => completeMiniGame(currentGame.id, hint)} />;
+        return <CatchingGame onComplete={(hint) => completeMiniGame(currentGame.id, hint)} />;
       default:
         return null;
     }

@@ -4,7 +4,6 @@ import yoshiFace from './assets/yoshi_face.jpg';
 import fruitImage from './assets/fruit.png';
 import bombImage from './assets/bomb.png';
 import { DIFFICULTY_CONFIG, EXT, DifficultyUtils } from './difficulty';
-import { getScoreTier, ScoreTier } from './endings';
 import { PLAYER, PLAYER_HITBOX, GAME_AREA, GameUtils } from './config';
 import { useChromaSprite } from '../../../hooks/useChromaSprite';
 import { preloadAudio, playBgm, stopBgm, playSfx, setMuted, isMuted, initAudio } from './audio';
@@ -12,7 +11,6 @@ import { PowerupManager, PowerupType, POWERUP_CONFIGS } from './state/powerups';
 import HintBubble from './HintBubble';
 
 interface CatchingGameProps {
-  difficulty: number;
   onComplete: (hint: string) => void;
 }
 
@@ -30,10 +28,9 @@ interface GameStats {
   spawnInterval: number;
   bombProbability: number;
   activeBombs: number;
-  totalEntities: number;
 }
 
-const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) => {
+const CatchingGame: React.FC<CatchingGameProps> = ({ onComplete }) => {
   const [yoshiPosition, setYoshiPosition] = useState(400);
   const [items, setItems] = useState<Item[]>([]);
   const [score, setScore] = useState(0);
@@ -46,9 +43,11 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
     speed: DIFFICULTY_CONFIG.BASE_SPEED,
     spawnInterval: DIFFICULTY_CONFIG.BASE_SPAWN,
     bombProbability: DIFFICULTY_CONFIG.BOMB_PROB_START,
-    activeBombs: 0,
-    totalEntities: 0
+    activeBombs: 0
   });
+  
+  // 성능 최적화: activeBombs 카운터를 ref로 관리
+  const activeBombsCountRef = useRef<number>(0);
   const [bombScale, setBombScale] = useState(1.0);
   const [timeLeft, setTimeLeft] = useState<number>(DIFFICULTY_CONFIG.GAME_DURATION_SEC);
   const [targetScore] = useState(DIFFICULTY_CONFIG.TARGET_SCORE);
@@ -80,7 +79,6 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
   // 컴포넌트 언마운트 시 BGM 정지
   useEffect(() => {
     return () => {
-      console.log('🔇 요시 게임 컴포넌트 언마운트 - BGM 정지');
       stopBgm();
     };
   }, []);
@@ -107,14 +105,14 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
     lastSpawnTimeRef.current = Date.now();
     spawnTimerRef.current = DIFFICULTY_CONFIG.BASE_SPAWN * 1000;
     itemIdCounterRef.current = 0;
+    activeBombsCountRef.current = 0;
     
     setGameStats({
       elapsedSec: 0,
       speed: DIFFICULTY_CONFIG.BASE_SPEED,
       spawnInterval: DIFFICULTY_CONFIG.BASE_SPAWN,
       bombProbability: DIFFICULTY_CONFIG.BOMB_PROB_START,
-      activeBombs: 0,
-      totalEntities: 0
+      activeBombs: 0
     });
   }, []);
 
@@ -214,14 +212,14 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
     lastSpawnTimeRef.current = now;
     lastLogTimeRef.current = now;
     spawnTimerRef.current = DIFFICULTY_CONFIG.BASE_SPAWN * 1000; // 밀리초로 변환
+    activeBombsCountRef.current = 0;
     
     setGameStats({
       elapsedSec: 0,
       speed: DIFFICULTY_CONFIG.BASE_SPEED,
       spawnInterval: DIFFICULTY_CONFIG.BASE_SPAWN,
       bombProbability: DIFFICULTY_CONFIG.BOMB_PROB_START,
-      activeBombs: 0,
-      totalEntities: 0
+      activeBombs: 0
     });
   }, [initializeGame]);
 
@@ -277,7 +275,8 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
       
       // 아이템 생성
       if (spawnTimerRef.current <= 0) {
-        const activeBombs = items.filter(item => item.type === 'bomb').length;
+        // 성능 최적화: filter 대신 ref 사용
+        const currentActiveBombs = activeBombsCountRef.current;
         const totalEntities = items.length;
         
         // 최대 엔티티 수 제한
@@ -294,7 +293,7 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
             powerupType = powerupManagerRef.current?.getRandomPowerupType() || 'magnet';
           } else {
             // 동시 폭탄 수 제한
-            const canSpawnBomb = activeBombs < DIFFICULTY_CONFIG.MAX_ACTIVE_BOMBS;
+            const canSpawnBomb = currentActiveBombs < DIFFICULTY_CONFIG.MAX_ACTIVE_BOMBS;
             const shouldSpawnBomb = Math.random() < currentBombProbability;
             itemType = (canSpawnBomb && shouldSpawnBomb) ? 'bomb' : 'fruit';
           }
@@ -306,6 +305,11 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
             y: 0,
             powerupType
           };
+          
+          // 성능 최적화: 폭탄 카운터 업데이트
+          if (itemType === 'bomb') {
+            activeBombsCountRef.current += 1;
+          }
           
           setItems(prev => [...prev, newItem]);
         }
@@ -341,7 +345,13 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
           }
           
           // 화면 밖으로 나간 아이템 제거
-          if (newY >= 600) return acc;
+          if (newY >= 600) {
+            // 성능 최적화: 폭탄이 화면 밖으로 나가면 카운터 감소
+            if (item.type === 'bomb') {
+              activeBombsCountRef.current = Math.max(0, activeBombsCountRef.current - 1);
+            }
+            return acc;
+          }
 
           // 충돌 체크 (원-원 거리 충돌)
           const playerHitbox = GameUtils.getPlayerHitboxCenter(yoshiPosition, GAME_AREA.GROUND_Y);
@@ -352,6 +362,9 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
 
           if (isColliding) {
             if (item.type === 'bomb') {
+              // 성능 최적화: 폭탄 충돌 시 카운터 감소
+              activeBombsCountRef.current = Math.max(0, activeBombsCountRef.current - 1);
+              
               // 실드 체크
               const hasShield = powerupManagerRef.current?.useShield() || false;
               if (hasShield) {
@@ -401,32 +414,18 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
       // 파워업 업데이트
       powerupManagerRef.current?.update(deltaTimeMs);
 
-      // 게임 통계 업데이트
-      const activeBombs = items.filter(item => item.type === 'bomb').length;
-      const totalEntities = items.length;
+      // 게임 통계 업데이트 (성능 최적화: activeBombs는 ref에서 가져옴)
+      const currentActiveBombs = activeBombsCountRef.current;
       
       setGameStats({
         elapsedSec,
         speed: currentSpeed,
         spawnInterval: currentSpawnInterval,
         bombProbability: currentBombProbability,
-        activeBombs,
-        totalEntities
+        activeBombs: currentActiveBombs
       });
 
-      // 디버그 로그 (5초마다)
-      if (DIFFICULTY_CONFIG.ENABLE_DEBUG_LOGS && 
-          currentTime - lastLogTimeRef.current >= DIFFICULTY_CONFIG.LOG_INTERVAL_SEC * 1000) {
-        console.table({
-          t: elapsedSec.toFixed(1) + 's',
-          speed: Math.round(currentSpeed) + 'px/s',
-          spawnInterval: currentSpawnInterval.toFixed(2) + 's',
-          pBomb: (currentBombProbability * 100).toFixed(1) + '%',
-          activeBombs: activeBombs,
-          totalEntities: totalEntities
-        });
-        lastLogTimeRef.current = currentTime;
-      }
+      // 디버그 로그 (비활성화됨 - 성능 최적화)
 
       lastFrameTimeRef.current = currentTime;
       animationFrameIdRef.current = requestAnimationFrame(updateGame);
@@ -443,33 +442,15 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
 
   // 무한 모드: 점수 기반 자동 클리어 제거, 목숨이 0이 될 때만 게임 오버
 
-  // 게임 종료 시 통계 요약 출력
-  useEffect(() => {
-    if (isGameOver && DIFFICULTY_CONFIG.ENABLE_DEBUG_LOGS) {
-      const avgSpawnInterval = gameStats.elapsedSec > 0 ? 
-        (gameStats.elapsedSec / Math.max(1, score / 10)) : 0;
-      const avgBombRatio = gameStats.elapsedSec > 0 ? 
-        (gameStats.bombProbability * 100) : 0;
-      
-      console.log('=== 게임 종료 통계 요약 ===');
-      console.table({
-        '총 플레이 시간': gameStats.elapsedSec.toFixed(1) + '초',
-        '최종 점수': score + '점',
-        '평균 스폰 간격': avgSpawnInterval.toFixed(2) + '초',
-        '최종 폭탄 비율': avgBombRatio.toFixed(1) + '%',
-        '최대 동시 폭탄': gameStats.activeBombs,
-        '최대 화면 오브젝트': gameStats.totalEntities
-      });
-    }
-  }, [isGameOver, gameStats, score]);
+  // 게임 종료 시 통계 요약 출력 (비활성화됨 - 성능 최적화)
 
   // 메인으로 돌아가기 클릭 시에만 onComplete 실행
   const handleReturnToMain = useCallback(() => {
-    // 200점 달성 시에만 힌트 제공
+    // 130점 달성 시에만 힌트 제공
     if (score >= targetScore) {
       onComplete('마지막 무기의 재료는... 물의 보석과 뽀꾸뽀꾸를 조합하면 돼!');
     } else {
-      // 200점 미달성 시 힌트 없이 메인으로 돌아가기
+      // 130점 미달성 시 힌트 없이 메인으로 돌아가기
       onComplete('');
     }
     // currentMiniGame을 null로 설정하여 메인 화면으로 돌아가기
@@ -712,7 +693,7 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
                           </div>
                           <div className="success-content">
                             <h3>축하합니다!</h3>
-                            <p>200점을 달성했습니다!</p>
+                            <p>130점을 달성했습니다!</p>
                             <button className="success-button" onClick={handleReturnToMain}>
                               계속하기
                             </button>
@@ -729,7 +710,7 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ difficulty, onComplete }) =
                           </div>
                           <div className="retry-content">
                             <h3>아쉽네요!</h3>
-                            <p>200점을 달성하지 못했습니다.</p>
+                            <p>130점을 달성하지 못했습니다.</p>
                             <button className="retry-button" onClick={() => startGame()}>
                               다시 도전하기
                             </button>
