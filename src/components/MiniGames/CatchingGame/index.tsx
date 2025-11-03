@@ -446,11 +446,11 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ onComplete }) => {
 
   // 메인으로 돌아가기 클릭 시에만 onComplete 실행
   const handleReturnToMain = useCallback(() => {
-    // 130점 달성 시에만 힌트 제공
+    // 100점 달성 시에만 힌트 제공
     if (score >= targetScore) {
       onComplete('마지막 무기의 재료는... 물의 보석과 뽀꾸뽀꾸를 조합하면 돼!');
     } else {
-      // 130점 미달성 시 힌트 없이 메인으로 돌아가기
+      // 100점 미달성 시 힌트 없이 메인으로 돌아가기
       onComplete('');
     }
     // currentMiniGame을 null로 설정하여 메인 화면으로 돌아가기
@@ -693,7 +693,7 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ onComplete }) => {
                           </div>
                           <div className="success-content">
                             <h3>축하합니다!</h3>
-                            <p>130점을 달성했습니다!</p>
+                            <p>100점을 달성했습니다!</p>
                             <button className="success-button" onClick={handleReturnToMain}>
                               계속하기
                             </button>
@@ -710,7 +710,7 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ onComplete }) => {
                           </div>
                           <div className="retry-content">
                             <h3>아쉽네요!</h3>
-                            <p>130점을 달성하지 못했습니다.</p>
+                            <p>100점을 달성하지 못했습니다.</p>
                             <button className="retry-button" onClick={() => startGame()}>
                               다시 도전하기
                             </button>
