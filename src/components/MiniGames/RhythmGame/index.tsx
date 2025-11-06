@@ -143,8 +143,8 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
         // 게임 시간 체크 (무한 게임)
         const gameDuration = Date.now() - gameStartTime;
         
-        // 60초 후 게임 종료 (8000점 상관없이)
-        if (gameDuration > 60000) {
+        // 30초 후 게임 종료 (점수 상관없이)
+        if (gameDuration > 30000) {
           setIsGameOver(true);
           setShowResults(true);
           
@@ -167,9 +167,9 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
             const beatInterval = 60000 / bpm;
             const noteInterval = beatInterval;
             
-            // 게임 시간에 따라 속도 증가 (0초부터 시작해서 60초까지)
+            // 게임 시간에 따라 속도 증가 (0초부터 시작해서 30초까지)
             const gameDuration = now - gameStartTime;
-            const speedIncrease = Math.min(0.5, gameDuration / 60000 * 0.5); // 최대 0.5배까지 빨라짐
+            const speedIncrease = Math.min(0.5, gameDuration / 30000 * 0.5); // 최대 0.5배까지 빨라짐
             const speedMultiplier = Math.max(0.3, 1 - speedIncrease); // 0.3배까지 빨라짐
             
             const position = Math.floor(Math.random() * 4);
@@ -421,7 +421,7 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
                       
                       // 게임 시간에 따른 속도 변화 적용
                       const gameDuration = now - gameStartTime;
-                      const speedIncrease = Math.min(0.5, gameDuration / 60000 * 0.5);
+                      const speedIncrease = Math.min(0.5, gameDuration / 30000 * 0.5);
                       const speedMultiplier = Math.max(0.3, 1 - speedIncrease);
                       
                       // 노트가 2초 동안 떨어져서 히트라인에 도달 (속도 변화 반영)
@@ -549,21 +549,12 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
                   <span>{gameStats.score}</span>
                 </div>
               </div>
-              {gameStats.score >= 8000 ? (
-                <div className="clear-message">
-                  <p>🎉 클리어했습니다!!!</p>
-                  <button className="continue-btn" onClick={() => onComplete('으아악.. 훌륭하군 다음으로 넘어가라')}>
-                    계속하기
-                  </button>
-                </div>
-              ) : (
-                <div className="retry-message">
-                  <p>히든 미션 클리어! 끝까지 쿵쿵이와 싸워주셔서 힌트를 얻게 되었습니다!</p>
-                  <button className="continue-btn" onClick={() => onComplete('히든 조건완료! 끝까지 게임을 플레이 하셨기에 힌트가 제공됩니다')}>
-                    계속하기
-                  </button>
-                </div>
-              )}
+              <div className="clear-message">
+                <p>🎉 클리어했습니다!!!</p>
+                <button className="continue-btn" onClick={() => onComplete('으아악.. 훌륭하군 다음으로 넘어가라')}>
+                  계속하기
+                </button>
+              </div>
             </div>
           )}
 
@@ -571,21 +562,10 @@ const RhythmGame: React.FC<RhythmGameProps> = ({ difficulty, onComplete }) => {
             <div className="game-over">
               <h2>게임 종료!</h2>
               <p>최종 점수: {score}</p>
-              {score >= 8000 ? (
-                <>
-                  <p>클리어했습니다!!!</p>
-                  <button className="continue-btn" onClick={() => onComplete('으아악.. 훌륭하군 다음으로 넘어가라')}>
-                    계속하기
-                  </button>
-                </>
-              ) : (
-                <>
-                  <p>히든 미션 클리어! 끝까지 쿵쿵이와 싸워주셔서 힌트를 얻게 되었습니다!</p>
-                  <button className="continue-btn" onClick={() => onComplete('히든 조건완료! 끝까지 게임을 플레이 하셨기에 힌트가 제공됩니다')}>
-                    계속하기
-                  </button>
-                </>
-              )}
+              <p>클리어했습니다!!!</p>
+              <button className="continue-btn" onClick={() => onComplete('으아악.. 훌륭하군 다음으로 넘어가라')}>
+                계속하기
+              </button>
             </div>
           )}
         </>
