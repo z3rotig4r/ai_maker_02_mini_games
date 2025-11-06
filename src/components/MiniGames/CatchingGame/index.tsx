@@ -50,7 +50,7 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ onComplete }) => {
   const activeBombsCountRef = useRef<number>(0);
   const [bombScale, setBombScale] = useState(1.0);
   const [timeLeft, setTimeLeft] = useState<number>(DIFFICULTY_CONFIG.GAME_DURATION_SEC);
-  const [targetScore] = useState(DIFFICULTY_CONFIG.TARGET_SCORE);
+  // 목표 점수 제거 - 항상 통과
   const [showRetryPrompt, setShowRetryPrompt] = useState(false);
 
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
@@ -222,13 +222,6 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ onComplete }) => {
       activeBombs: 0
     });
   }, [initializeGame]);
-
-  // gameStarted가 false로 변경되고 리트라이 프롬프트가 없을 때 게임 시작
-  useEffect(() => {
-    if (!gameStarted && !showRetryPrompt && !isGameOver) {
-      startGame();
-    }
-  }, [gameStarted, showRetryPrompt, isGameOver, startGame]);
 
   useEffect(() => {
     if (!gameStarted || isGameOver) return;
@@ -446,16 +439,11 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ onComplete }) => {
 
   // 메인으로 돌아가기 클릭 시에만 onComplete 실행
   const handleReturnToMain = useCallback(() => {
-    // 100점 달성 시에만 힌트 제공
-    if (score >= targetScore) {
-      onComplete('마지막 무기의 재료는... 물의 보석과 뽀꾸뽀꾸를 조합하면 돼!');
-    } else {
-      // 100점 미달성 시 힌트 없이 메인으로 돌아가기
-      onComplete('');
-    }
+    // 항상 힌트 제공 (목표 점수 제거)
+    onComplete('마지막 무기의 재료는... 물의 보석과 뽀꾸뽀꾸를 조합하면 돼!');
     // currentMiniGame을 null로 설정하여 메인 화면으로 돌아가기
     setGameStarted(false);
-  }, [onComplete, score, targetScore]);
+  }, [onComplete]);
 
   // 입력으로 인한 창 스크롤 방지
   useEffect(() => {
@@ -554,7 +542,6 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ onComplete }) => {
             <div className="game-info-top">
               <div className="score-info">
                 <div className="current-score">점수: {score}</div>
-                <div className="target-score">목표: {targetScore}</div>
               </div>
               <div className="time-info">
                 <div className="time-left">시간: {Math.ceil(timeLeft)}초</div>
@@ -678,48 +665,22 @@ const CatchingGame: React.FC<CatchingGameProps> = ({ onComplete }) => {
           {isGameOver && (
             <div className="game-over-overlay">
               <div className="game-over-modal">
-                {(() => {
-                  const isTargetAchieved = score >= targetScore;
-                  return (
-                    <>
-                      {isTargetAchieved ? (
-                        <div className="success-message">
-                          <h2>미션 완료!</h2>
-                          <div className="score-display">
-                            <p>최종 점수: {score} / {targetScore}</p>
-                            <p className="final-score target-achieved">
-                              🎉 목표 달성! 🎉
-                            </p>
-                          </div>
-                          <div className="success-content">
-                            <h3>축하합니다!</h3>
-                            <p>100점을 달성했습니다!</p>
-                            <button className="success-button" onClick={handleReturnToMain}>
-                              계속하기
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="retry-message">
-                          <h2>게임 오버!</h2>
-                          <div className="score-display">
-                            <p>최종 점수: {score} / {targetScore}</p>
-                            <p className="final-score target-failed">
-                              😢 목표 미달성
-                            </p>
-                          </div>
-                          <div className="retry-content">
-                            <h3>아쉽네요!</h3>
-                            <p>100점을 달성하지 못했습니다.</p>
-                            <button className="retry-button" onClick={() => startGame()}>
-                              다시 도전하기
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  );
-                })()}
+                <div className="success-message">
+                  <h2>미션 완료!</h2>
+                  <div className="score-display">
+                    <p>최종 점수: {score}</p>
+                    <p className="final-score target-achieved">
+                      🎉 완료! 🎉
+                    </p>
+                  </div>
+                  <div className="success-content">
+                    <h3>축하합니다!</h3>
+                    <p>게임을 완료했습니다!</p>
+                    <button className="success-button" onClick={handleReturnToMain}>
+                      계속하기
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
